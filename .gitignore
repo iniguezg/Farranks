@@ -12,3 +12,4 @@
 *.out
 __pycache__/
 figures/old/
+tables/old/
