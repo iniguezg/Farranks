@@ -1,5 +1,7 @@
 #!/bin/bash
 
+module load anaconda
+
 sbatch -J Citations -o Citations.out script_fitData.sh Citations
 
 sbatch -J english -o english.out script_fitData.sh english
