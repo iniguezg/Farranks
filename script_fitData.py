@@ -82,13 +82,14 @@ if __name__ == "__main__":
 
 	## analysis 6: estimate parameter deviations for dataset (all parameters at same time)
 
-	params['ntimes'] = 2500 #number of realisations (for bootstrap sampling)
+	ntimes = 2500 #number of realisations (for bootstrap sampling)
 	dataname = sys.argv[1] #considered dataset
 	print( 'dataset name: ' + dataname ) #print dataset
 
 	#get parameters for all datasets and selected dataset
 	params_data = pd.read_pickle( saveloc_data+'params_data.pkl' )
 	params = dict( params_data.loc[ dataname ] ) #(dict to have ints and floats!)
+	params['ntimes'] = ntimes
 	datatype = datatypes[ dataname ] #dataset type: open, closed
 
 	params_devs = data_misc.data_estimate_params_devs( dataname, params, loadflag, saveloc_data, datatype=datatype )
