@@ -1,0 +1,14 @@
+#ignore everything and then track folders
+*
+!*/
+
+#things to track
+!.gitignore
+!*.py
+!*.sh
+!*.slurm
+
+#specific things to ignore
+*.out
+__pycache__/
+figures/old/
