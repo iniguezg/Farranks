@@ -7,8 +7,8 @@
 !*.sh
 !*.slurm
 
-!params_data.pkl
-!params_model_*.pkl
+!files/params_data.pkl
+!files/params_model_*.pkl
 
 !.gitignore
 !.gitattributes
