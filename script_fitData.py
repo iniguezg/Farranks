@@ -3,6 +3,7 @@
 ### SCRIPT FOR FITTING NULL MODEL WITH DATA IN FARRANKS PROJECT ###
 
 #import modules
+import sys
 import pandas as pd
 from os.path import expanduser
 
