@@ -4,7 +4,6 @@
 
 #import modules
 import pandas as pd
-import matplotlib.pyplot as plt
 from os.path import expanduser
 
 import data_misc
@@ -26,11 +25,7 @@ if __name__ == "__main__":
 	saveloc_data = root_loc+'nullModel/v4/files/' #location of output files
 
 	#datasets to explore
-#	datasets = [ 'AcademicRanking', 'AtlasComplex', 'Citations', 'Cities_RU', 'Cities_UK', 'Earthquakes_avgMagnitude', 'Earthquakes_numberQuakes', 'english', 'enron-sent-mails-weekly', 'FIDEFemale', 'FIDEMale', 'Football_FIFA', 'Football_Scorers', 'Fortune', 'french', 'german', 'github-watch-weekly', 'Golf_OWGR', 'Hienas', 'italian', 'metroMex', 'Nascar_BuschGrandNational', 'Nascar_WinstonCupGrandNational', 'Poker_GPI', 'russian', 'spanish', 'Tennis_ATP', 'TheGuardian_avgRecommends', 'TheGuardian_numberComments', 'UndergroundByWeek' ]
-	# datasets = [ 'metroMex', 'Hienas', 'Citations', 'Golf_OWGR' ]
-	# datasets = [ 'Earthquakes_avgMagnitude', 'Cities_UK', 'Football_Scorers', 'enron-sent-mails-weekly' ]
-	# datasets = [ 'Earthquakes_numberQuakes', 'Nascar_BuschGrandNational', 'UndergroundByWeek', 'Tennis_ATP' ]
-	datasets = [ 'Nascar_WinstonCupGrandNational', 'Cities_RU', 'Fortune', 'Poker_GPI' ]
+	datasets = [ 'AcademicRanking', 'AtlasComplex', 'Citations', 'Cities_RU', 'Cities_UK', 'Earthquakes_avgMagnitude', 'Earthquakes_numberQuakes', 'english', 'enron-sent-mails-weekly', 'FIDEFemale', 'FIDEMale', 'Football_FIFA', 'Football_Scorers', 'Fortune', 'french', 'german', 'github-watch-weekly', 'Golf_OWGR', 'Hienas', 'italian', 'metroMex', 'Nascar_BuschGrandNational', 'Nascar_WinstonCupGrandNational', 'Poker_GPI', 'russian', 'spanish', 'Tennis_ATP', 'TheGuardian_avgRecommends', 'TheGuardian_numberComments', 'UndergroundByWeek' ]
 #	datasets = [ 'FIDEFemale', 'FIDEMale', 'Golf_OWGR', 'Poker_GPI', 'Tennis_ATP', 'TheGuardian_avgRecommends', 'TheGuardian_numberComments', 'english', 'french', 'german', 'github-watch-weekly', 'italian', 'russian', 'spanish' ]
 #	datasets = [ 'enron-sent-mails-weekly', 'Football_FIFA', 'Football_Scorers', 'Fortune', 'Hienas', 'metroMex', 'Nascar_BuschGrandNational', 'Nascar_WinstonCupGrandNational', 'UndergroundByWeek' ]
 #	datasets = [ 'VideogameEarnings', 'Virus' ] #shady data
@@ -38,17 +33,17 @@ if __name__ == "__main__":
 	datatypes = { 'AcademicRanking' : 'open', 'AtlasComplex' : 'open', 'Citations' : 'open', 'Cities_RU' : 'open', 'Cities_UK' : 'closed', 'Earthquakes_avgMagnitude' : 'closed', 'Earthquakes_numberQuakes' : 'closed', 'english' : 'open', 'enron-sent-mails-weekly' : 'open', 'FIDEFemale' : 'open', 'FIDEMale' : 'open', 'Football_FIFA' : 'open', 'Football_Scorers' : 'open', 'Fortune' : 'open', 'french' : 'open', 'german' : 'open', 'github-watch-weekly' : 'open', 'Golf_OWGR' : 'open', 'Hienas' : 'open', 'italian' : 'open', 'metroMex' : 'closed', 'Nascar_BuschGrandNational' : 'open', 'Nascar_WinstonCupGrandNational' : 'open', 'Poker_GPI' : 'open', 'russian' : 'open', 'spanish' : 'open','Tennis_ATP' : 'open', 'TheGuardian_avgRecommends' : 'open', 'TheGuardian_numberComments' : 'open', 'UndergroundByWeek' : 'closed' } #type dict
 #	datasets = { 'VideogameEarnings' : 'open', 'Virus' : 'open' } #shady data
 
-	for dataname in datasets: #loop through considered datasets
-		print( 'dataset name: ' + dataname ) #print dataset
-
-		## DATA ##
-
-		#get parameters for all datasets and selected dataset
-		params_data = pd.read_pickle( saveloc_data+'params_data.pkl' )
-		params = dict( params_data.loc[ dataname ] ) #(dict to have ints and floats!)
-
-		#model fit parameters
-		datatype = datatypes[ dataname ] #dataset type: open, closed
+	# for dataname in datasets: #loop through considered datasets
+	# 	print( 'dataset name: ' + dataname ) #print dataset
+	#
+	# 	## DATA ##
+	#
+	# 	#get parameters for all datasets and selected dataset
+	# 	params_data = pd.read_pickle( saveloc_data+'params_data.pkl' )
+	# 	params = dict( params_data.loc[ dataname ] ) #(dict to have ints and floats!)
+	#
+	# 	#model fit parameters
+	# 	datatype = datatypes[ dataname ] #dataset type: open, closed
 
 		# ## analysis 1: get model PD for dataset ##
 		#
@@ -85,11 +80,19 @@ if __name__ == "__main__":
 		# params_model = data_misc.data_estimate_params_sample( dataname, params, location, loadflag, saveloc, datatype=datatype )
 		# print(params_model)
 
-		## analysis 6: estimate parameter deviations for dataset (all parameters at same time)
+	## analysis 6: estimate parameter deviations for dataset (all parameters at same time)
 
-		params['ntimes'] = 2500
-		params_devs = data_misc.data_estimate_params_devs( dataname, params, loadflag, saveloc_data, datatype=datatype )
-		print(params_devs)
+	params['ntimes'] = 2500 #number of realisations (for bootstrap sampling)
+	dataname = sys.argv[1] #considered dataset
+	print( 'dataset name: ' + dataname ) #print dataset
+
+	#get parameters for all datasets and selected dataset
+	params_data = pd.read_pickle( saveloc_data+'params_data.pkl' )
+	params = dict( params_data.loc[ dataname ] ) #(dict to have ints and floats!)
+	datatype = datatypes[ dataname ] #dataset type: open, closed
+
+	params_devs = data_misc.data_estimate_params_devs( dataname, params, loadflag, saveloc_data, datatype=datatype )
+	print( params_devs, flush=True )
 
 
 #DEBUGGIN'

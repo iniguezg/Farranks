@@ -544,17 +544,17 @@ def data_estimate_params_devs( dataname, params, loadflag, saveloc, datatype='op
 		#set props and params for each bootstrap realisation
 		prop_names = ( 'flux', 'open', 'succ' ) #properties to compute
 		params_rel = { 'N':params['N'], 'N0':params['N0'], 'T':params['T'], 'ptau':params_model.loc['optimal', 'ptau'], 'pnu':params_model.loc['optimal', 'pnu'], 'ntimes':1 } #parameters to run model
-		print( '\tN = {}'.format( params_rel['N'] ) )
+		print( '\tN = {}'.format( params_rel['N'] ), flush=True )
 
 		#estimate system size from rank openness in model (theo) and use as guess for N
 		N_est_theo = model_misc.N_est_theo( params_rel )
-		print( '\tN_est_theo = {}'.format( N_est_theo ) )
+		print( '\tN_est_theo = {}'.format( N_est_theo ), flush=True )
 
 		#initialise dataframe of parameters in bootstrapped model (to compute deviations)
 		params_devs = pd.DataFrame( np.zeros( ( ntimes, 6 ) ), index=pd.Series( range(ntimes), name='realisation'), columns=pd.Series( [ 'flux', 'open_deriv', 'success', 'p0', 'ptau', 'pnu' ], name='parameter' ) )
 
 		for nt in range(ntimes): #loop through realisations
-			print( 'nt = {}'.format(nt) ) #to know where we stand
+			print( 'nt = {}'.format(nt), flush=True ) #to know where we stand
 
 			#estimate system size from rank openness in model (theo) and use as guess for N
 			params_rel['N'] = N_est_theo
@@ -565,7 +565,8 @@ def data_estimate_params_devs( dataname, params, loadflag, saveloc, datatype='op
 
 			params_devs.loc[ nt ] = model_misc.estimate_params_all( dataname, params_rel, saveloc, prop_dict=prop_dict, datatype=datatype )
 
-		params_devs.to_pickle( saveloc + 'params_devs_' + param_str )
+			#save every realisation (for large datasets in cluster)
+			params_devs.to_pickle( saveloc + 'params_devs_' + param_str )
 
 	return params_devs
 
