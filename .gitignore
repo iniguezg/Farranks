@@ -3,10 +3,15 @@
 !*/
 
 #things to track
-!.gitignore
 !*.py
 !*.sh
 !*.slurm
+
+!params_data.pkl
+!params_model_*.pkl
+
+!.gitignore
+!.gitattributes
 
 #specific things to ignore
 *.out
