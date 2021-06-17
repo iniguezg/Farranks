@@ -22,8 +22,9 @@ if __name__ == "__main__":
 
 	#flags and locations
 	loadflag = 'n'
-	root_loc = expanduser('~') + '/prg/xocial/Farranks/' #root location
-	saveloc_data = root_loc+'nullModel/v4/files/' #location of output files
+#	root_loc = expanduser('~') + '/prg/xocial/Farranks/' #root location
+#	saveloc_data = root_loc+'nullModel/v4/files/' #location of output files
+	saveloc_data = '/m/cs/scratch/networks/inigueg1/prg/xocial/Farranks/nullModel/v4/files/'
 
 	#datasets to explore
 	datasets = [ 'AcademicRanking', 'AtlasComplex', 'Citations', 'Cities_RU', 'Cities_UK', 'Earthquakes_avgMagnitude', 'Earthquakes_numberQuakes', 'english', 'enron-sent-mails-weekly', 'FIDEFemale', 'FIDEMale', 'Football_FIFA', 'Football_Scorers', 'Fortune', 'french', 'german', 'github-watch-weekly', 'Golf_OWGR', 'Hienas', 'italian', 'metroMex', 'Nascar_BuschGrandNational', 'Nascar_WinstonCupGrandNational', 'Poker_GPI', 'russian', 'spanish', 'Tennis_ATP', 'TheGuardian_avgRecommends', 'TheGuardian_numberComments', 'UndergroundByWeek' ]
