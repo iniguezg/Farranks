@@ -22,8 +22,8 @@ if __name__ == "__main__":
 
 	#flags and locations
 	loadflag = 'n'
-#	root_loc = expanduser('~') + '/prg/xocial/Farranks/' #root location
-#	saveloc_data = root_loc+'nullModel/v4/files/' #location of output files
+	# root_loc = expanduser('~') + '/prg/xocial/Farranks/' #root location
+	# saveloc_data = root_loc+'nullModel/v4/files/' #location of output files
 	saveloc_data = '/m/cs/scratch/networks/inigueg1/prg/xocial/Farranks/nullModel/v4/files/'
 
 	#datasets to explore
