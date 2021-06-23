@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-### SCRIPT FOR PLOTTING SUPP FIGURE (SAMPLING) IN FARRANKS PROJECT ###
+### SCRIPT FOR PLOTTING SUPP FIGURE (DEVIATIONS) IN FARRANKS PROJECT ###
 
 #import modules
 import os, sys
@@ -23,10 +23,7 @@ if __name__ == "__main__":
 	#flags and locations
 	loadflag = 'y'
 	root_loc = expanduser('~') + '/prg/xocial/Farranks/' #root location
-	saveloc_orig = root_loc+'nullModel/v4/files/' #location of original/sampling files
-	saveloc_samp = root_loc+'nullModel/v4/files/sampling/'
-
-	samp_thres = 0.1 #sampling threshold
+	saveloc_data = root_loc+'nullModel/v4/files/' #location of original/sampling files
 
 	#dataset short names, types, and colors
 
@@ -47,7 +44,7 @@ if __name__ == "__main__":
 	'figlabel' : 26,
 	'ticklabel' : 13,
 	'text_size' : 10,
-	'marker_size' : 10,
+	'marker_size' : 6,
 	'linewidth' : 1,
 	'tickwidth' : 1,
 	'barwidth' : 0.8,
@@ -61,17 +58,16 @@ if __name__ == "__main__":
 	#plot variables
 	fig_props = { 'fig_num' : 1,
 	'fig_size' : (10, 6),
-	'aspect_ratio' : (6, 6),
-	'grid_params' : dict( left=0.065, bottom=0.1, right=0.99, top=0.99, wspace=0.2, hspace=0.8 ),
-	'height_ratios' : [ 0.1, 0, 1, 1, 1, 1 ],
+	'aspect_ratio' : (4, 6),
+	'grid_params' : dict( left=0.09, bottom=0.08, right=0.995, top=0.93, wspace=0.3, hspace=0.6 ),
 	'dpi' : 300,
-	'savename' : 'figure_supp_sampling' }
+	'savename' : 'figure_supp_deviations' }
 
 
 	## DATA ##
 
 	#get parameters for all datasets
-	params_data = pd.read_pickle( saveloc_orig+'params_data.pkl' )
+	params_data = pd.read_pickle( saveloc_data+'params_data.pkl' )
 
 	#prepare dataset order by flux
 
@@ -84,16 +80,11 @@ if __name__ == "__main__":
 		param_str = dataname+'_N{}_N0{}_T{}.pkl'.format( N, N0, T )
 
 		#get flux mean in data
-		fluOprops_data = pd.read_pickle( saveloc_orig + 'fluOprops_' + param_str )
+		fluOprops_data = pd.read_pickle( saveloc_data + 'fluOprops_' + param_str )
 		#average OUT-/IN- flux over time, and then over ranks
 		fluxmean_data[ dataname ] = fluOprops_data.mean( axis=0 ).mean()
 
 	fluxmean_data.sort_values( ascending=False, inplace=True ) #sort values
-
-	#universal curve in model
-
-	pnu_resc_vals = np.logspace( -3, np.log10( 4e-1 ), 50 ) #pick rescaled pnu as variable
-	ptau_resc_vals = 1 / pnu_resc_vals #and slide over universal curve
 
 
 	## PLOTTING ##
@@ -103,75 +94,75 @@ if __name__ == "__main__":
 	#convert fig size to inches
 	fig = plt.figure( fig_props['fig_num'], figsize=np.array( fig_props['fig_size'] ) )
 	plt.clf()
-	grid = gridspec.GridSpec( *fig_props['aspect_ratio'], height_ratios=fig_props['height_ratios'] )
+	grid = gridspec.GridSpec( *fig_props['aspect_ratio'] )
 	grid.update( **fig_props['grid_params'] )
 
 
 # A: Rescaled parameters across universal curve under sampling
 
 	sel_datasets = [ dataname for dataname in fluxmean_data.index if datasets_openclosed[ dataname ] == 'open' ]
-	# sel_datasets = [ 'Earthquakes_numberQuakes' ]
+	# sel_datasets = ['AcademicRanking']
 
 	for grid_pos, dataname in enumerate( sel_datasets ): #loop through (open!) datasets (in order by decreasing mean flux)
 		print( 'flux = {:.2f}, dataset = {}'.format( fluxmean_data[ dataname ], dataname ) ) #to know where we stand
 
 		#initialise subplot
-		ax = plt.subplot( grid[ grid_pos + 12 ] )
+		ax = plt.subplot( grid[ grid_pos ] )
 		sns.despine( ax=ax ) #take out spines
-		if grid_pos in [ 18, 19, 20, 21, 22, 23 ]:
-			plt.xlabel( r'$\nu_r$', size=plot_props['xylabel'], labelpad=2 )
-		if grid_pos in [ 0, 6, 12, 18 ]:
-			plt.ylabel( r'$\tau_r$', size=plot_props['xylabel'], labelpad=2 )
 
 		#prepare data
 
-		#load parameters and fitted model parameters for samples of original dataset
-		params = params_data.loc[ dataname ] #original parameters
-		params_sample = pd.read_pickle( saveloc_samp+'params_sample_'+dataname+'.pkl' )
-		params_model = pd.read_pickle( saveloc_samp+'params_model_'+dataname+'.pkl' )
-		params_all = pd.concat( [ params_sample, params_model ], axis=1 ) #join all
+		#load fitted model parameters
+		params_model = pd.read_pickle( saveloc_data+'params_model_'+dataname+'.pkl' )
+		pnu = params_model.loc['optimal', 'pnu']
+		ptau = params_model.loc['optimal', 'ptau']
 
-		#get rescaled model parameters (as a function of sampling jump)
-		pnu_resc = ( ( params_all['pnu'] - params_all['p0'] * params_all['open_deriv'] ) / params_all['open_deriv'] ).rename('pnu_resc')
-		ptau_resc = ( params_all['ptau'] / ( params_all['p0'] * (1 - params_all['p0']) * params_all['open_deriv'] ) ).rename('ptau_resc')
-		#fraction of observations (out of T) left by (sub)sampling
-		samp_frac = ( params_all['T'] / float( params['T'] ) ).rename('samp_frac')
-
-		params_all = pd.concat( [ params_all, ptau_resc, pnu_resc, samp_frac ], axis=1 ) #join all
-
-		#filter data (with sampling fraction larger than threshold!)
-		params_plot = params_all[ params_all['samp_frac'] > samp_thres ]
-		print(params_plot)
+		#load parameters of bootstrapped samples of model
+		params_devs = pd.read_pickle( saveloc_data+'params_devs_'+dataname+'.pkl' )
+		#NOTE: for incomplete sampling, just keep finished realisations
+		params_devs = params_devs[ params_devs.p0 > 0 ]
+		print( '\trealisations: {}'.format( params_devs.index.size ) )
 
 		#plot plot!
 
-		#(filtered) sampled dataset
-		scat = plt.scatter( params_plot['pnu_resc'], params_plot['ptau_resc'], c=params_plot['samp_frac'], vmin=0, vmax=1, cmap='winter_r', s=plot_props['marker_size'], zorder=1 )
+		#fitted parameters for data
+		plt.axhline( ls='--', c='0.3', lw=plot_props['linewidth'], zorder=1 )
+		plt.axvline( ls='--', c='0.3', lw=plot_props['linewidth'], zorder=1 )
 
-		#universal curve in model
-		plt.plot( pnu_resc_vals, ptau_resc_vals, '--', c='0.5', lw=plot_props['linewidth'], label=r'$\tau_r \nu_r = 1$', zorder=0 )
+		#KDE/mean of bootstrapped model
+
+		xplot = ( ( params_devs['pnu'] - pnu ) / pnu ).rename('pnu_frac')
+		yplot = ( ( params_devs['ptau'] - ptau ) / ptau ).rename('ptau_frac')
+		xyplot = pd.concat( [ xplot, yplot ], axis=1 )
+
+		plt.plot( xplot.mean(), yplot.mean(), 'x', c='r', ms=plot_props['marker_size'], zorder=1 )
+		if dataname != 'spanish':
+			sns.kdeplot( data=xyplot, x='pnu_frac', y='ptau_frac', ax=ax, fill=True, palette='GnBu', levels=np.linspace(0.1, 1., 10), zorder=0 )
 
 		#texts
-		plt.text( 0.5, 1.15, datasets[ dataname ], va='center', ha='center', transform=ax.transAxes, fontsize=plot_props['ticklabel'] )
+
+		plt.text( 0.5, 1.25, datasets[ dataname ], va='center', ha='center', transform=ax.transAxes, fontsize=plot_props['ticklabel'] )
+
+		if grid_pos == 0:
+			plt.text( -0.68, 0.5, 'open', va='center', ha='center', transform=ax.transAxes, weight='bold', rotation='vertical', fontsize=plot_props['xylabel'] )
+			plt.annotate( text='', xy=( -0.68, -4.5 ), xytext=( -0.68, 0 ), arrowprops=dict(arrowstyle='<-', color='0.6'), xycoords=ax.transAxes, textcoords=ax.transAxes )
 
 		#finalise subplot
-		plt.axis([ 1e-3, 4e-1, 2.5e-0, 1e3 ])
-		plt.xscale('log')
-		plt.yscale('log')
+		if grid_pos in [ 18, 19, 20, 21, 22, 23 ]:
+			plt.xlabel( r'$\Delta \nu$', size=plot_props['xylabel'], labelpad=2 )
+		else:
+			plt.xlabel('')
+		if grid_pos in [ 0, 6, 12, 18 ]:
+			plt.ylabel( r'$\Delta \tau$', size=plot_props['xylabel'], labelpad=2 )
+		else:
+			plt.ylabel('')
+		plt.axis([ -0.5, 0.6, -0.7, 0.5 ])
+		ax.locator_params( axis='both', nbins=3 )
 		ax.tick_params( axis='both', which='major', labelsize=plot_props['ticklabel'], pad=2 )
 		if grid_pos not in [ 18, 19, 20, 21, 22, 23 ]:
 			plt.xticks([])
 		if grid_pos not in [ 0, 6, 12, 18 ]:
 			plt.yticks([])
-
-	#colorbar
-	cax = plt.subplot( grid[ 2:4 ] )
-	cbar = plt.colorbar( scat, cax=cax, orientation='horizontal' )
-	plt.text( -0.15, -2.6, '$T_{\mathrm{eff}} / T=$', va='center', ha='center', transform=cax.transAxes, fontsize=plot_props['text_size'] )
-
-	#texts and arrows
-	plt.text( -7.65, 5.5, 'open', va='center', ha='center', transform=ax.transAxes, weight='bold', rotation='vertical', fontsize=plot_props['xylabel'] )
-	plt.annotate( text='', xy=( -7.65, 0.3 ), xytext=( -7.65, 5 ), arrowprops=dict(arrowstyle='<-', color='0.6'), xycoords=ax.transAxes, textcoords=ax.transAxes )
 
 	#finalise plot
 	if fig_props['savename'] != '':
@@ -180,32 +171,28 @@ if __name__ == "__main__":
 
 
 #DEBUGGIN'
-	# plt.figure(2)
-	# plt.clf()
-	# for dataname in sel_datasets:
-	# 	params = params_data.loc[ dataname ] #original parameters
-	# 	params_sample = pd.read_pickle( saveloc_samp+'params_sample_'+dataname+'.pkl' )
-	# 	params_model = pd.read_pickle( saveloc_samp+'params_model_'+dataname+'.pkl' )
-	# 	params_all = pd.concat( [ params_sample, params_model ], axis=1 ) #join all
-	#
-	# 	#get rescaled model parameters (as a function of sampling jump)
-	# 	pnu_resc = ( ( params_all['pnu'] - params_all['p0'] * params_all['open_deriv'] ) / params_all['open_deriv'] ).rename('pnu_resc')
-	# 	ptau_resc = ( params_all['ptau'] / ( params_all['p0'] * (1 - params_all['p0']) * params_all['open_deriv'] ) ).rename('ptau_resc')
-	# 	#fraction of observations (out of T) left by (sub)sampling
-	# 	samp_frac = ( params_all['T'] / float( params['T'] ) ).rename('samp_frac')
-	#
-	# 	params_all = pd.concat( [ params_all, ptau_resc, pnu_resc, samp_frac ], axis=1 ) #join all
-	#
-	# 	#filter data (with sampling fraction larger than threshold!)
-	# 	params_plot = params_all[ params_all['samp_frac'] > samp_thres ]
-	#
-	# 	# plt.loglog( params_all.index, params_all.pnu / params_model.loc[1, 'pnu'], label=dataname, zorder=1 )
-	# 	# plt.loglog( np.linspace(1, 1000, 10), np.linspace(1, 1000, 10), '--', c='0.2', zorder=1 )
-	# 	# plt.loglog( params_all.index, (1 - (1 - params_model.loc[1, 'pnu'])**params_all.index) / params_model.loc[1, 'pnu'], '--', c='0.8', zorder=1 )
-	#
-	# 	plt.loglog( params_all.index, params_all.ptau / params_model.loc[1, 'ptau'], label=dataname, zorder=1 )
-	# 	plt.loglog( np.linspace(1, 1000, 10), np.linspace(1, 1000, 10), '--', c='0.2', zorder=1 )
-	# 	plt.loglog( params_all.index, (1 - (1 - params_model.loc[1, 'ptau'])**params_all.index) / params_model.loc[1, 'ptau'], '--', c='0.8', zorder=1 )
-	#
-	# plt.legend()
-	# plt.show()
+
+	#universal curve in model
+
+	# pnu_resc_vals = np.logspace( -3, np.log10( 4e-1 ), 50 ) #pick rescaled pnu as variable
+	# ptau_resc_vals = 1 / pnu_resc_vals #and slide over universal curve
+
+		# #get rescaled model parameters (in data)
+		# pnu_resc = ( params_model['pnu'] - params_model['p0'] * params_model['open_deriv'] ) / params_model['open_deriv']
+		# ptau_resc = params_model['ptau'] / ( params_model['p0'] * (1 - params_model['p0']) * params_model['open_deriv'] )
+
+		# #get rescaled model parameters (in bootstrapped samples of model)
+		# pnu_resc_devs = ( ( params_devs['pnu'] - params_devs['p0'] * params_devs['open_deriv'] ) / params_devs['open_deriv'] ).rename('pnu_resc')
+		# ptau_resc_devs = ( params_devs['ptau'] / ( params_devs['p0'] * (1 - params_devs['p0']) * params_devs['open_deriv'] ) ).rename('ptau_resc')
+		# params_resc_devs = pd.concat( [ pnu_resc_devs, ptau_resc_devs ], axis=1 ) #and join
+
+		#rescaled fitted parameters for data
+		# plt.loglog( pnu_resc, ptau_resc, 'o', label='data', c=datacols[datatypes[dataname]], ms=plot_props['marker_size'], zorder=2 )
+
+		# sns.kdeplot( data=params_resc_devs, x='pnu_resc', y='ptau_resc', ax=ax, log_scale=True, fill=True, palette='GnBu', zorder=1 )
+
+		#universal curve in model
+		# plt.loglog( pnu_resc_vals, ptau_resc_vals, '--', c='0.5', lw=plot_props['linewidth'], label=r'$\tau_r \nu_r = 1$', zorder=0 )
+
+			# plt.xlabel( r'$\nu_r$', size=plot_props['xylabel'], labelpad=2 )
+			# plt.ylabel( r'$\tau_r$', size=plot_props['xylabel'], labelpad=2 )
