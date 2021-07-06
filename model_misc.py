@@ -83,9 +83,9 @@ def null_model( params ):
 	return rankseries, elemseries, params_new
 
 
-#function to get average flux/rank/open/succ properties for rank/element time series of null model
+#function to get average flux/rank/open/succ/samp properties for rank/element time series of null model
 def model_props( prop_names, params, loadflag='n', saveloc='', saveflag='n' ):
-	"""Get average flux/rank/open/succ properties for rank/element time series of null model"""
+	"""Get average flux/rank/open/succ/samp properties for rank/element time series of null model"""
 
 	ntimes = params['ntimes'] #number of realisations to average
 
@@ -102,6 +102,8 @@ def model_props( prop_names, params, loadflag='n', saveloc='', saveflag='n' ):
 		savenames['disp'] = ( saveloc + 'dispprops_' + param_str, )
 	if 'succ' in prop_names:
 		savenames['succ'] = ( saveloc + 'success_' + param_str, saveloc + 'surprise_' + param_str )
+	if 'samp' in prop_names:
+		savenames['samp'] = ( saveloc + 'sampprops_' + param_str, )
 
 	#load/calculate properties
 	if loadflag == 'y': #load files
@@ -117,6 +119,8 @@ def model_props( prop_names, params, loadflag='n', saveloc='', saveflag='n' ):
 		if 'succ' in prop_names:
 			success = pd.read_pickle( savenames['succ'][0] )
 			surprise = pd.read_pickle( savenames['succ'][1] )
+		if 'samp' in prop_names:
+			sampprops = pd.read_pickle( savenames['samp'][0] )
 
 	elif loadflag == 'n': #or else, compute properties
 
@@ -133,11 +137,13 @@ def model_props( prop_names, params, loadflag='n', saveloc='', saveflag='n' ):
 			dispprops = props_misc.get_disp_time_props( rankseries, elemseries, params )
 		if 'succ' in prop_names:
 			success, surprise = props_misc.get_succ_props( rankseries, elemseries, params )
+		if 'samp' in prop_names:
+			sampprops = props_misc.get_samp_props( rankseries, elemseries, params )
 
 		#and average over remaining realisations
 		for nt in range( ntimes - 1 ):
 #			if nt % 100 == 0: #to know where we are
-#				print( 'nt = {}'.format( nt ) )
+			print( 'nt = {}'.format( nt ) )
 
 			#run model again and again
 			rankseries, elemseries, params_one = null_model( params )
@@ -161,6 +167,9 @@ def model_props( prop_names, params, loadflag='n', saveloc='', saveflag='n' ):
 				success_one, surprise_one = props_misc.get_succ_props( rankseries, elemseries, params )
 				success += success_one
 				surprise += surprise_one
+			if 'samp' in prop_names:
+				sampprops_one = props_misc.get_samp_props( rankseries, elemseries, params )
+				sampprops += sampprops_one
 
 		#get averages!
 		params_new['N'] = int( params_new['N'] / float(ntimes) ) #first varying parameters
@@ -188,9 +197,14 @@ def model_props( prop_names, params, loadflag='n', saveloc='', saveflag='n' ):
 			if saveflag == 'y':
 				success.to_pickle( savenames['succ'][0] ) #and save results
 				surprise.to_pickle( savenames['succ'][1] )
+		if 'samp' in prop_names:
+			sampprops /= ntimes
+			if saveflag == 'y':
+				sampprops.to_pickle( savenames['samp'][0] ) #and save result
 
 	prop_dict = {} #initialise dict of properties to return
-	prop_dict['params'] = params_new
+	if loadflag == 'n':
+		prop_dict['params'] = params_new #save only when not loading
 	if 'flux' in prop_names:
 		prop_dict['flux'] = ( fluOprops, fluIprops )
 	if 'rank' in prop_names:
@@ -201,6 +215,8 @@ def model_props( prop_names, params, loadflag='n', saveloc='', saveflag='n' ):
 		prop_dict['disp'] = ( dispprops, )
 	if 'succ' in prop_names:
 		prop_dict['succ'] = ( success, surprise )
+	if 'samp' in prop_names:
+		prop_dict['samp'] = ( sampprops, )
 
 	return prop_dict
 

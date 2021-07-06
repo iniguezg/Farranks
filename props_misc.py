@@ -6,6 +6,7 @@
 import numpy as np
 import pandas as pd
 
+import model_misc
 
 ## FUNCTIONS ##
 
@@ -210,6 +211,47 @@ def get_succ_props( rankseries, elemseries, params ):
 			surprise.at[ thres, lag ] = surprise_buffer / float( surprise_count )
 
 	return success, surprise
+
+
+#function to get sampling properties for rank/element time series of data/model
+def get_samp_props( rankseries, elemseries, params ):
+	"""Get sampling properties for rank/element time series of data/model"""
+
+	T = params['T'] #parameters from data
+
+	#initialise dataframe of optimal model parameters
+	sampprops = pd.DataFrame( np.zeros(( T-1, 9 )), index=pd.Series( range(1, T), name='jump'), columns=pd.Series( [ 'N', 'N0', 'T', 'flux', 'open_deriv', 'success', 'p0', 'ptau', 'pnu' ], name='parameter' ) )#.astype({ 'N':int, 'N0':int, 'T':int })
+
+	for jump in range( 1, T ): #loop through (all possible) jump values (inc. original data)
+
+		#sample element/rank time series (drop elements disappearing from ranking!)
+		elemseries_sample = elemseries[::jump]
+		rankseries_sample = rankseries[::jump].dropna( axis=1, how='all' )
+
+		#reset time index (to 0, ..., T_sample-1)
+		elemseries_sample.reset_index( drop=True, inplace=True )
+		rankseries_sample.reset_index( drop=True, inplace=True )
+
+		#recalculate parameters for sampled dataset
+		N_sample = rankseries_sample.columns.size #N minus elements without rank
+		N0_sample = elemseries_sample.columns.size #same as N0
+		T_sample = elemseries_sample.index.size #same as in sample rank time series
+		params_sample = { 'N':N_sample, 'N0':N0_sample, 'T':T_sample }
+
+		#get flux/open/succ properties of sampled dataset
+		fluOprops_sample, not_used = get_flux_props( rankseries_sample, elemseries_sample, params_sample )
+		openprops_sample = get_open_props( rankseries_sample, elemseries_sample, params_sample )
+		success_sample, not_used = get_succ_props( rankseries_sample, elemseries_sample, params_sample )
+		prop_dict = { 'flux':(fluOprops_sample,), 'open':(openprops_sample,), 'succ':(success_sample,) }
+
+		#get optimal model parameters for sample dataset
+		datatype = 'open' if N0_sample < N_sample else 'closed' #get datatype
+		flux_sample, open_deriv_sample, success_sample, p0_sample, ptau_sample, pnu_sample = model_misc.estimate_params_all( '', params_sample, '', prop_dict=prop_dict, datatype=datatype )
+
+		#update sample parameter dataframe
+		sampprops.loc[jump] = N_sample, N0_sample, T_sample, flux_sample, open_deriv_sample, success_sample, p0_sample, ptau_sample, pnu_sample
+
+	return sampprops
 
 
 #function to get MLE properties for rank/element time series of data/model
