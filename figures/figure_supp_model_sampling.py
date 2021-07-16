@@ -12,7 +12,7 @@ import matplotlib.gridspec as gridspec
 from os.path import expanduser
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
-import model_misc
+import model_misc as mm
 
 ## RUNNING FIGURE SCRIPT ##
 
@@ -20,56 +20,13 @@ if __name__ == "__main__":
 
 	## CONF ##
 
-	#model variables
+	#model parameters
+	params = { 'ptau' : 0.01, 'pnu' : 0.01, 'N' : 1000, 'N0' : 500, 'T' : 1000, 'ntimes' : 10 }
 
-	# ptau_vals = [ 0.1 ]
-	# ptau_sel = 0.1
-	# pnu_vals = [ 0.03 ]
-	# pnu_sel = 0.03
-	# N = 2000
-	# N0 = 500
-	# T = 50
+	thres = 0.5 #threshold to calculate success/surprise measure
+	samp_thres = 0.05 #sampling threshold
 
-	# #companies
-	# ptau_sel = 0.0689
-	# pnu_sel = 0.0260
-	# ptau_vals, pnu_vals = [ptau_sel], [pnu_sel]
-	# N, N0, T = 1895, 500, 51
-	# # football scorers
-	# ptau_sel = 0.1377
-	# pnu_sel = 0.0305
-	# ptau_vals, pnu_vals = [ptau_sel], [pnu_sel]
-	# N, N0, T = 2397, 400, 53
-	# #enron-sent-mails-weekly
-	# ptau_sel = 0.7747
-	# pnu_sel = 0.0129
-	# ptau_vals, pnu_vals = [ptau_sel], [pnu_sel]
-	# N, N0, T = 4720, 209, 101
-	# #Poker_GPI
-	# ptau_sel = 0.0402
-	# pnu_sel = 0.0058
-	# ptau_vals, pnu_vals = [ptau_sel], [pnu_sel]
-	# N, N0, T = 9799, 1795, 221
-	#Golf_OWGR
-	ptau_sel = 0.0068
-	pnu_sel = 0.0012
-	ptau_vals, pnu_vals = [ptau_sel], [pnu_sel]
-	N, N0, T = 3632, 1150, 768
-	# #Tennis_ATP
-	# ptau_sel = 0.0137
-	# pnu_sel = 0.0021
-	# ptau_vals, pnu_vals = [ptau_sel], [pnu_sel]
-	# N, N0, T = 4793, 1600, 400
-	# #Nascar_BuschGrandNational
-	# ptau_sel = 0.4744
-	# pnu_sel = 0.0455
-	# ptau_vals, pnu_vals = [ptau_sel], [pnu_sel]
-	# N, N0, T = 676, 76, 34
-
-	ntimes = 10
-
-	#parameters/properties dicts
-	params = { 'N0' : N0, 'T' : T, 'ntimes' : ntimes }
+	#properties dict
 	prop_names = ( 'samp' ) #only compute sampling
 
 	#flag and locations
@@ -94,141 +51,189 @@ if __name__ == "__main__":
 
 	#plot variables
 	fig_props = { 'fig_num' : 1,
-	'fig_size' : (10, 5),
-	'aspect_ratio' : (1, 2),
-	'grid_params' : dict( left=0.07, bottom=0.11, right=0.99, top=0.98, wspace=0.1, hspace=0.2 ),
+	'fig_size' : (10, 6),
+	'aspect_ratio' : (2, 3),
+	'grid_params' : dict( left=0.065, bottom=0.08, right=0.985, top=0.95, wspace=0.4, hspace=0.2 ),
 	'dpi' : 300,
 	'savename' : 'figure_supp_model_sampling' }
+
+	colors = sns.color_palette( 'GnBu', n_colors=1 ) #colors to plot
+
+
+	## MODEL ##
+
+	#get avg samp properties for rank/element time series of null model
+	prop_dict = mm.model_props( prop_names, params, loadflag=loadflag, saveloc=saveloc_model, saveflag=saveflag )
+
+	#get sampling jumps and effective times
+	k_vals = prop_dict['samp'][0].index.values #sampling jump values
+	Teff_vals = np.ceil( params['T'] / k_vals )
+
+	#only consider samples w/ high enough number of observations
+	k_vals = k_vals[ Teff_vals / float( params['T'] ) > samp_thres ]
+	Teff_vals = np.ceil( params['T'] / k_vals )
+
+	#get effective parameters (due to sampling)
+	ptau_eff_vals = 1 - ( 1 - params['ptau'] )**k_vals
+	pnu_eff_vals = 1 - ( 1 - params['pnu'] )**k_vals
+
+	#set dict of effective parameters
+	params_eff = {
+		'ptau' : ptau_eff_vals, 'pnu' : pnu_eff_vals, 'T' : Teff_vals,
+		'N' : params['N'], 'N0' : params['N0'],
+		'p0' : params['N0'] / float( params['N'] )
+	}
 
 
 	## PLOTTING ##
 
 	#initialise plot
 	sns.set( style="white" ) #set fancy fancy plot
-	#convert fig size to inches
 	fig = plt.figure( fig_props['fig_num'], figsize=np.array( fig_props['fig_size'] ) )
 	plt.clf()
 	grid = gridspec.GridSpec( *fig_props['aspect_ratio'] )
 	grid.update( **fig_props['grid_params'] )
 
 
-# A: Effective model parameter (ptau) as a function of sampling jump
-
-	#model parameters
-	params[ 'pnu' ] = pnu_sel #set replacement probability
-
-	#subplot variables
-	colors = sns.color_palette( 'GnBu', n_colors=len(ptau_vals) ) #colors to plot
+# A: Effective mean flux as a function of sampling jump
 
 	#initialise subplot
 	ax = plt.subplot( grid[ 0 ] )
 	sns.despine( ax=ax ) #take out spines
-	plt.xlabel( r'$k$', size=plot_props['xylabel'], labelpad=2 )
-	plt.ylabel( r'$\tau / \tau^*$', size=plot_props['xylabel'], labelpad=2 )
+	plt.ylabel( r'$F_k / F$', size=plot_props['xylabel'], labelpad=2 )
 
-	#plot plot!
+	xplot = k_vals #sampling jumps
 
-	for pos_ptau, ptau in enumerate( ptau_vals ): #loop through ptau values
+	#MODEL
+	yplot_model = prop_dict['samp'][0].loc[k_vals, 'flux'] / prop_dict['samp'][0].loc[1, 'flux'] #mean flux
+	plt.plot( xplot, yplot_model, 'o', c=colors[0], ms=plot_props['marker_size'], zorder=0 )
 
-		#model parameters
-		params[ 'N' ] = N #set (initial) system size
-		params[ 'ptau' ] = ptau #set displacement probability
-		print( params )
-
-		#estimate system size from rank openness in model (theo) and use as guess for N
-		params[ 'N' ] = model_misc.N_est_theo( params )
-		print( '\tN_est_theo = {}'.format( params['N'] ) )
-
-		prop_dict = model_misc.model_props( prop_names, params, loadflag=loadflag, saveloc=saveloc_model, saveflag=saveflag ) #run model
-		params['N'] = prop_dict['samp'][0].loc[1, 'N'] #update varying parameters
-		print( '\t\tN = {}'.format( params['N'] ) )
-
-		#plot plot!
-
-		xplot = prop_dict['samp'][0].index #sampling jumps
-
-		#MODEL
-		yplot_model = prop_dict['samp'][0].ptau / params['ptau'] #eff displacement parameter
-		label_model = '{}'.format(ptau) if pos_ptau	== 0 else None
-		plt.loglog( xplot, yplot_model, 'o', label=label_model, c=colors[pos_ptau], ms=plot_props['marker_size'], lw=plot_props['linewidth'], zorder=2 )
-
-		#THEO
-		yplot_theo = ( 1 - ( 1 - params['ptau'] )**xplot ) / params['ptau'] #eff displacement parameter
-		label_theo = 'theo' if pos_ptau	== 0 else None
-		plt.loglog( xplot, yplot_theo, '--', label=label_theo, c=colors[pos_ptau], ms=plot_props['marker_size'], lw=plot_props['linewidth'], zorder=1 )
-
-		#identity line
-		plt.loglog( xplot, xplot, '--', label=r'$\tau = k \tau^*$', c='0.5', ms=plot_props['marker_size'], lw=plot_props['linewidth'], zorder=0 )
-
-
-	#text
-	plt.text( 0.5, 1, r'$\nu^* =$ '+'{}'.format( pnu_sel ), va='top', ha='center', transform=ax.transAxes, fontsize=plot_props['ticklabel'] )
-
-	#legend
-	leg = plt.legend( loc='lower right', bbox_to_anchor=(1, 0), title=r'$\tau^* =$', prop=plot_props['legend_prop'], handlelength=plot_props['legend_hlen'], numpoints=plot_props['legend_np'], columnspacing=plot_props[ 'legend_colsp' ], ncol=1 )
+	#THEO
+	yplot_theo = mm.flux_theo( params_eff ) / mm.flux_theo( params ) #mean flux
+	plt.plot( xplot, yplot_theo, '-', c='0.5', lw=plot_props['linewidth'], zorder=1 )
 
 	#finalise subplot
-	# plt.axis([ -0.01, 1.01, -0.01, 1.01 ])
+	plt.axis([ xplot[0]-1, xplot[-1]+1, 0, 20 ])
 	ax.tick_params( axis='both', which='major', labelsize=plot_props['ticklabel'], pad=2 )
+	plt.xticks([])
 
 
-# B: Effective model parameter (pnu) as a function of sampling jump
-
-	#model parameters
-	params[ 'ptau' ] = ptau_sel #set displacement probability
-
-	#subplot variables
-	colors = sns.color_palette( 'GnBu', n_colors=len(pnu_vals) ) #colors to plot
+# B: Effective mean openness rate as a function of sampling jump
 
 	#initialise subplot
 	ax = plt.subplot( grid[ 1 ] )
 	sns.despine( ax=ax ) #take out spines
-	plt.xlabel( r'$k$', size=plot_props['xylabel'], labelpad=2 )
-	plt.ylabel( r'$\nu / \nu^*$', size=plot_props['xylabel'], labelpad=2 )
+	plt.ylabel( r'$\dot{o}_k / \dot{o}$', size=plot_props['xylabel'], labelpad=2 )
 
-	#plot plot!
+	xplot = k_vals #sampling jumps
 
-	for pos_pnu, pnu in enumerate( pnu_vals ): #loop through pnu values
+	#MODEL
+	yplot_model = prop_dict['samp'][0].loc[k_vals, 'open_deriv'] / prop_dict['samp'][0].loc[1, 'open_deriv'] #mean openness rate
+	plt.plot( xplot, yplot_model, 'o', c=colors[0], ms=plot_props['marker_size'], zorder=0 )
 
-		#model parameters
-		params[ 'N' ] = N #set (initial) system size
-		params[ 'pnu' ] = pnu #set replacement probability
-		print( params )
-
-		#estimate system size from rank openness in model (theo) and use as guess for N
-		params[ 'N' ] = model_misc.N_est_theo( params )
-		print( '\tN_est_theo = {}'.format( params['N'] ) )
-
-		prop_dict = model_misc.model_props( prop_names, params, loadflag=loadflag, saveloc=saveloc_model, saveflag=saveflag ) #run model
-		params['N'] = prop_dict['samp'][0].loc[1, 'N'] #update varying parameters
-		print( '\t\tN = {}'.format( params['N'] ) )
-
-		#plot plot!
-
-		xplot = prop_dict['samp'][0].index #sampling jumps
-
-		#MODEL
-		yplot_model = prop_dict['samp'][0].pnu / params['pnu'] #eff replacement parameter
-		label_model = '{}'.format(pnu) if pos_pnu == 0 else None
-		plt.loglog( xplot, yplot_model, 'o', label=label_model, c=colors[pos_pnu], ms=plot_props['marker_size'], lw=plot_props['linewidth'], zorder=2 )
-
-		#THEO
-		yplot_theo = ( 1 - ( 1 - params['pnu'] )**xplot ) / params['pnu'] #eff replacement parameter
-		label_theo = 'theo' if pos_pnu == 0 else None
-		plt.loglog( xplot, yplot_theo, '--', label=label_theo, c=colors[pos_pnu], ms=plot_props['marker_size'], lw=plot_props['linewidth'], zorder=1 )
-
-		#identity line
-		plt.loglog( xplot, xplot, '--', label=r'$\nu = k \nu^*$', c='0.5', ms=plot_props['marker_size'], lw=plot_props['linewidth'], zorder=0 )
-
+	#THEO
+	yplot_theo = mm.open_deriv_theo( params_eff ) / mm.open_deriv_theo( params ) #mean openness rate
+	plt.plot( xplot, yplot_theo, '-', c='0.5', lw=plot_props['linewidth'], zorder=1 )
 
 	#text
-	plt.text( 0.5, 1, r'$\tau^* =$ '+'{}'.format( ptau_sel ), va='top', ha='center', transform=ax.transAxes, fontsize=plot_props['ticklabel'] )
-
-	#legend
-	leg = plt.legend( loc='lower right', bbox_to_anchor=(1, 0), title=r'$\nu^* =$', prop=plot_props['legend_prop'], handlelength=plot_props['legend_hlen'], numpoints=plot_props['legend_np'], columnspacing=plot_props[ 'legend_colsp' ], ncol=1 )
+	text_str = r'$\tau =$ '+str(params['ptau'])+r', $\nu =$ '+str(params['pnu'])+' ($p =$ {})'.format( params_eff['p0'] )
+	plt.text( 0.5, 1.03, text_str, va='bottom', ha='center', transform=ax.transAxes, fontsize=plot_props['ticklabel'] )
 
 	#finalise subplot
-	# plt.axis([ -0.01, 1.01, -0.01, 1.01 ])
+	plt.axis([ xplot[0]-1, xplot[-1]+1, 0, 20 ])
+	ax.tick_params( axis='both', which='major', labelsize=plot_props['ticklabel'], pad=2 )
+	plt.xticks([])
+
+
+# C: Effective success as a function of sampling jump
+
+	#initialise subplot
+	ax = plt.subplot( grid[ 2 ] )
+	sns.despine( ax=ax ) #take out spines
+	plt.ylabel( r'$S^{++}_k / S^{++}$', size=plot_props['xylabel'], labelpad=2 )
+
+	xplot = k_vals #sampling jumps
+
+	#MODEL
+	yplot_model = prop_dict['samp'][0].loc[k_vals, 'success'] / prop_dict['samp'][0].loc[1, 'success'] #success
+	plt.plot( xplot, yplot_model, 'o', c=colors[0], ms=plot_props['marker_size'], zorder=0 )
+
+	#THEO
+	yplot_theo = mm.success_time_theo( thres, 1, params_eff ) / mm.success_time_theo( thres, 1, params ) #success
+	plt.plot( xplot, yplot_theo, '-', c='0.5', lw=plot_props['linewidth'], zorder=1 )
+
+	#finalise subplot
+	plt.axis([ xplot[0]-1, xplot[-1]+1, 0, 1.05 ])
+	ax.tick_params( axis='both', which='major', labelsize=plot_props['ticklabel'], pad=2 )
+	plt.xticks([])
+
+
+# D: Effective ranking fraction as a function of sampling jump
+
+	#initialise subplot
+	ax = plt.subplot( grid[ 3 ] )
+	sns.despine( ax=ax ) #take out spines
+	plt.xlabel( r'$k$', size=plot_props['xylabel'], labelpad=2 )
+	plt.ylabel( r'$p_k / p$', size=plot_props['xylabel'], labelpad=2 )
+
+	xplot = k_vals #sampling jumps
+
+	#MODEL
+	yplot_model = prop_dict['samp'][0].loc[k_vals, 'p0'] / prop_dict['samp'][0].loc[1, 'p0'] #ranking fraction
+	plt.plot( xplot, yplot_model, 'o', c=colors[0], ms=plot_props['marker_size'], zorder=0 )
+
+	#THEO
+	yplot_theo = ( 1 / mm.openness_time_theo( params_eff ) ) / ( 1 / mm.openness_time_theo( params ) ) #ranking fraction
+	plt.plot( xplot, yplot_theo, '-', c='0.5', lw=plot_props['linewidth'], zorder=1 )
+
+	#finalise subplot
+	plt.axis([ xplot[0]-1, xplot[-1]+1, 0, 2 ])
+	ax.tick_params( axis='both', which='major', labelsize=plot_props['ticklabel'], pad=2 )
+
+
+# E: Effective displacement parameter as a function of sampling jump
+
+	#initialise subplot
+	ax = plt.subplot( grid[ 4 ] )
+	sns.despine( ax=ax ) #take out spines
+	plt.xlabel( r'$k$', size=plot_props['xylabel'], labelpad=2 )
+	plt.ylabel( r'$\tau^*_k / \tau^*$', size=plot_props['xylabel'], labelpad=2 )
+
+	xplot = k_vals #sampling jumps
+
+	#MODEL
+	yplot_model = prop_dict['samp'][0].loc[k_vals, 'ptau'] / prop_dict['samp'][0].loc[1, 'ptau'] #displacement parameter
+	plt.plot( xplot, yplot_model, 'o', c=colors[0], ms=plot_props['marker_size'], zorder=0 )
+
+	#THEO
+	yplot_theo = params_eff['ptau'] / params['ptau'] #displacement parameter
+	plt.plot( xplot, yplot_theo, '-', c='0.5', lw=plot_props['linewidth'], zorder=1 )
+
+	#finalise subplot
+	plt.axis([ xplot[0]-1, xplot[-1]+1, 0, 20 ])
+	ax.tick_params( axis='both', which='major', labelsize=plot_props['ticklabel'], pad=2 )
+
+
+ # F: Effective replacement parameter as a function of sampling jump
+
+	#initialise subplot
+	ax = plt.subplot( grid[ 5 ] )
+	sns.despine( ax=ax ) #take out spines
+	plt.xlabel( r'$k$', size=plot_props['xylabel'], labelpad=2 )
+	plt.ylabel( r'$\nu^*_k / \nu^*$', size=plot_props['xylabel'], labelpad=2 )
+
+	xplot = k_vals #sampling jumps
+
+	#MODEL
+	yplot_model = prop_dict['samp'][0].loc[k_vals, 'pnu'] / prop_dict['samp'][0].loc[1, 'pnu'] #displacement parameter
+	plt.plot( xplot, yplot_model, 'o', c=colors[0], ms=plot_props['marker_size'], zorder=0 )
+
+	#THEO
+	yplot_theo = params_eff['pnu'] / params['pnu'] #displacement parameter
+	plt.plot( xplot, yplot_theo, '-', c='0.5', lw=plot_props['linewidth'], zorder=1 )
+
+	#finalise subplot
+	plt.axis([ xplot[0]-1, xplot[-1]+1, 0, 20 ])
 	ax.tick_params( axis='both', which='major', labelsize=plot_props['ticklabel'], pad=2 )
 
 
@@ -236,3 +241,20 @@ if __name__ == "__main__":
 	if fig_props['savename'] != '':
 		plt.savefig( fig_props['savename']+'.pdf', format='pdf', dpi=fig_props['dpi'] )
 #		plt.savefig( fig_props['savename']+'.png', format='png', dpi=fig_props['dpi'] )
+
+
+#DEBUGGIN'
+
+	# params = { 'ptau' : 0.0068, 'pnu' : 0.0012, 'N' : 2619, 'N0' : 1150, 'T' : 768, 'ntimes' : 10 }
+	# params = { 'ptau' : 0.0137, 'pnu' : 0.0021, 'N' : 3438, 'N0' : 1600, 'T' : 400, 'ntimes' : 10 }
+	# params = { 'ptau' : 0.05, 'pnu' : 0.05, 'N' : 100, 'N0' : 10, 'T' : 1000, 'ntimes' : 10 }
+
+	# ptau_eff_vals = params['ptau'] * k_vals
+	# pnu_eff_vals = params['pnu'] * k_vals
+	# ptau_eff_vals = params['N']*( 1 - ( 1 - params['ptau']/params['N'] )**k_vals )
+	# pnu_eff_vals = params['N']*( 1 - ( 1 - params['pnu']/params['N'] )**k_vals )
+	# ptau_eff_vals[ ptau_eff_vals > 1 ] = 1
+	# pnu_eff_vals[ pnu_eff_vals > 1 ] = 1
+
+#	yplot_theo = mm.flux_time_theo( xplot, params ) #mean flux
+	# yplot_theo = params_eff['pnu'] * ( params_eff['pnu'] + params_eff['ptau'] ) / ( params_eff['pnu'] + params_eff['p0'] * params_eff['ptau'] )

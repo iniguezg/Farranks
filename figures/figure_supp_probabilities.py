@@ -101,7 +101,7 @@ if __name__ == "__main__":
 	grid.update( **fig_props['grid_params'] )
 
 
-# A: Regimes of Levi/Diffusion/replacement dynamics in open/closed systems
+# A: Regimes of Levy/Diffusion/replacement dynamics in open/closed systems
 
 	sel_datasets = [ dataname for dataname in fluxmean_data.index if datasets_openclosed[ dataname ] == 'open' ]
 
@@ -141,7 +141,7 @@ if __name__ == "__main__":
 		#regime probabilities (with t=1)
 		W_repl = 1 - np.exp( -pnu )
 		W_diff = np.exp( -pnu ) * np.exp( -ptau )
-		W_levi = np.exp( -pnu ) * ( 1 - np.exp( -ptau ) )
+		W_levy = np.exp( -pnu ) * ( 1 - np.exp( -ptau ) )
 
 		#prepare (variable) model parameters
 
@@ -156,18 +156,18 @@ if __name__ == "__main__":
 		#regime probabilities (with t=1)
 		W_repl_vals = 1 - np.exp( -pnu_vals )
 		W_diff_vals = np.exp( -pnu_vals ) * np.exp( -ptau_vals )
-		W_levi_vals = np.exp( -pnu_vals ) * ( 1 - np.exp( -ptau_vals ) )
+		W_levy_vals = np.exp( -pnu_vals ) * ( 1 - np.exp( -ptau_vals ) )
 
 
 		#plot plot!
 
 		#regime probabilities (in data)
-		handle_data, = plt.semilogx( pnu_resc, W_levi, 'o', label=None, ms=plot_props['marker_size'], c=colors[0], zorder=2 )
+		handle_data, = plt.semilogx( pnu_resc, W_levy, 'o', label=None, ms=plot_props['marker_size'], c=colors[0], zorder=2 )
 		plt.semilogx( pnu_resc, W_diff, 'o', label=None, ms=plot_props['marker_size'], c=colors[1], zorder=2 )
 		plt.semilogx( pnu_resc, W_repl, 'o', label=None, ms=plot_props['marker_size'], c=colors[2], zorder=2 )
 
 		#(variable) regime probabilities
-		handle_model, = plt.semilogx( pnu_resc_vals, W_levi_vals, label='$W_{\mathrm{levi}}$', lw=plot_props['linewidth'], c=colors[0], zorder=1 )
+		handle_model, = plt.semilogx( pnu_resc_vals, W_levy_vals, label='$W_{\mathrm{levy}}$', lw=plot_props['linewidth'], c=colors[0], zorder=1 )
 		plt.semilogx( pnu_resc_vals, W_diff_vals, label='$W_{\mathrm{diff}}$', lw=plot_props['linewidth'], c=colors[1], zorder=1 )
 		plt.semilogx( pnu_resc_vals, W_repl_vals, label='$W_{\mathrm{repl}}$', lw=plot_props['linewidth'], c=colors[2], zorder=1 )
 

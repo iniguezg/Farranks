@@ -156,7 +156,7 @@ if __name__ == "__main__":
 		plt.text( 0.5, 1.3, datasets[ dataname ], va='center', ha='center', transform=ax.transAxes, fontsize=plot_props['ticklabel'] )
 
 		#mean flux
-		fluxmean_str = r'$F_{\tau} =$ '+'{0:.2f}'.format( fluxmean_data[ dataname ] )
+		fluxmean_str = r'$F =$ '+'{0:.2f}'.format( fluxmean_data[ dataname ] )
 		plt.text( 0.99, 0.99, fluxmean_str, va='top', ha='right', transform=ax.transAxes, fontsize=plot_props['text_size'])
 
 		#prepare legend

@@ -251,6 +251,20 @@ def success_theo( thres, params ):
 	return success_theo
 
 
+#function to compute rank success through time in model (theo)
+def success_time_theo( thres, t, params ):
+	"""Compute rank success through time in model (theo)"""
+
+	N, N0 = params['N'], params['N0'] #parameters from data/model
+	ptau, pnu = params['ptau'], params['pnu'] #parameters to fit
+
+	p0 = N0 / float( N ) #ranking fraction
+
+	success_theo = np.exp( -pnu * t ) * ( thres * p0 + (1 - thres * p0) * np.exp( -ptau * t ) )
+
+	return success_theo
+
+
 #function to compute rank openness in model (theo)
 def openness_theo( params ):
 	"""Compute rank openness in model (theo)"""
@@ -273,6 +287,22 @@ def openness_theo( params ):
 	return openness_theo
 
 
+#function to compute rank openness through time in model (theo)
+def openness_time_theo( params ):
+	"""Compute rank openness through time in model (theo)"""
+
+	N, N0, T = params['N'], params['N0'], params['T'] #parameters from data/model
+	ptau, pnu = params['ptau'], params['pnu'] #parameters to fit
+
+	p0 = N0 / float( N ) #ranking fraction
+
+	exp_decay = np.exp( -( pnu + p0 * ptau ) * (T-1) )
+	inf_value = ( pnu + ptau ) / ( pnu + p0 * ptau )
+	openness_theo = ( 1 + pnu * (T-1) ) * ( exp_decay + inf_value * ( 1 - exp_decay ) )
+
+	return openness_theo
+
+
 #function to compute rank openness derivative in model (theo)
 def open_deriv_theo( params ):
 	"""Compute rank openness derivative in model (theo)"""
@@ -282,13 +312,10 @@ def open_deriv_theo( params ):
 
 	p0 = N0 / float( N ) #ranking fraction
 
-	exp_decay = np.exp( -( pnu + p0 * ptau ) * T )
+	exp_decay = np.exp( -( pnu + p0 * ptau ) * (T-1) )
+	inf_value = ( pnu + ptau ) / ( pnu + p0 * ptau )
 
-	if ptau * pnu > 0: #if anything happens:
-		inf_value = ( pnu + ptau ) / ( pnu + p0 * ptau )
-		open_deriv_theo = ( 1 / float(T) ) * ( ( 1 + pnu * T ) * ( exp_decay + inf_value * ( 1 - exp_decay ) ) - 1 )
-	else:
-		open_deriv_theo = 0. #null openness derivative
+	open_deriv_theo = ( 1/(T-1) ) * ( ( 1 + pnu * (T-1) ) * ( exp_decay + inf_value * ( 1 - exp_decay ) ) - 1 )
 
 	return open_deriv_theo
 
@@ -587,3 +614,36 @@ if __name__ == "__main__":
 # 	dist_border = np.sum( np.where( pvector < lower, lower - pvector, 0. ) ) + np.sum( np.where( pvector > upper, pvector - upper, 0. ) )
 #
 # 	return fborder + ( fborder + np.where( fborder > 0, min_incr, -min_incr ) ) * dist_border
+
+# #function to estimate system size from rank openness in model (theo)
+# def N_est_theo( params ):
+# 	"""Estimate system size from rank openness in model (theo)"""
+#
+# 	N, N0, T = params['N'], params['N0'], params['T'] #parameters from data/model
+# 	ptau, pnu = params['ptau'], params['pnu'] #parameters to fit
+#
+# 	p0 = lambda x : N0 / float( x )
+# 	exp_decay = lambda x : np.exp( -( pnu + p0(x) * ptau ) * (T-1) )
+# 	inf_value = lambda x : ( pnu + ptau ) / ( pnu + p0(x) * ptau )
+#
+# 	N_func = lambda x : np.abs( N/x - p0(x) * ( 1 + pnu*(T-1) ) * ( exp_decay(x) + inf_value(x)*(1 - exp_decay(x)) ) )
+#
+# 	N_res = spo.minimize_scalar( N_func, bounds=(N0, N), method='bounded' )
+# 	N_est_theo = int( N_res.x )
+#
+# 	# N_est_theo = int( ( ptau * N0 * N ) / ( N0 * ( pnu + ptau ) * ( 1 + pnu * (T-1) ) - pnu * ptau * N ) )
+#
+# 	return N_est_theo
+
+# #function to compute rank flux through time in model (theo)
+# def flux_time_theo( t, params ):
+# 	"""Compute rank flux through time in model (theo)"""
+#
+# 	N, N0 = params['N'], params['N0'] #parameters from data/model
+# 	ptau, pnu = params['ptau'], params['pnu'] #parameters to fit
+#
+# 	p0 = N0 / float( N ) #ranking fraction
+#
+# 	flux_theo = 1 - np.exp( -pnu*t ) * ( p0 + (1 - p0) * np.exp( -ptau*t ) )
+#
+# 	return flux_theo

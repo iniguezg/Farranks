@@ -101,7 +101,7 @@ if __name__ == "__main__":
 # A: Rescaled parameters across universal curve under sampling
 
 	sel_datasets = [ dataname for dataname in fluxmean_data.index if datasets_openclosed[ dataname ] == 'open' ]
-	# sel_datasets = ['AcademicRanking']
+	# sel_datasets = ['english']
 
 	for grid_pos, dataname in enumerate( sel_datasets ): #loop through (open!) datasets (in order by decreasing mean flux)
 		print( 'flux = {:.2f}, dataset = {}'.format( fluxmean_data[ dataname ], dataname ) ) #to know where we stand
@@ -116,12 +116,39 @@ if __name__ == "__main__":
 		params_model = pd.read_pickle( saveloc_data+'params_model_'+dataname+'.pkl' )
 		pnu = params_model.loc['optimal', 'pnu']
 		ptau = params_model.loc['optimal', 'ptau']
+		p0 = params_model.loc['optimal', 'p0']
+		open_deriv = params_model.loc['optimal', 'open_deriv']
 
 		#load parameters of bootstrapped samples of model
 		params_devs = pd.read_pickle( saveloc_data+'params_devs_'+dataname+'.pkl' )
 		#NOTE: for incomplete sampling, just keep finished realisations
 		params_devs = params_devs[ params_devs.p0 > 0 ]
 		print( '\trealisations: {}'.format( params_devs.index.size ) )
+
+		#statistical significance of deviations
+
+		#get rescaled model parameters (in data)
+		pnu_resc = ( pnu - p0 * open_deriv ) / open_deriv
+		ptau_resc = ptau / ( p0 * (1 - p0) * open_deriv )
+
+		#get rescaled model parameters (in bootstrapped samples of model)
+		pnu_resc_devs = ( ( params_devs.pnu - params_devs.p0 * params_devs.open_deriv ) / params_devs.open_deriv ).rename('pnu_resc')
+		ptau_resc_devs = ( params_devs.ptau / ( params_devs.p0 * (1 - params_devs.p0) * params_devs.open_deriv ) ).rename('ptau_resc')
+
+		#get distance from universal curve (in data/samples)
+		# curve = np.abs( ptau_resc - 1/pnu_resc )
+		# curve_devs = np.abs( ptau_resc_devs - 1/pnu_resc_devs )
+		# curve = np.abs( pnu_resc - 1/ptau_resc )
+		# curve_devs = np.abs( pnu_resc_devs - 1/ptau_resc_devs )
+		# curve = ( ptau_resc - 1/pnu_resc )**2 + ( pnu_resc - 1/ptau_resc )**2
+		# curve_devs = ( ptau_resc_devs - 1/pnu_resc_devs )**2 + ( pnu_resc_devs - 1/ptau_resc_devs )**2
+		curve = np.abs( np.log10( ptau_resc * pnu_resc ) )
+		curve_devs = np.abs( np.log10( ptau_resc_devs * pnu_resc_devs ) )
+
+		#p-value as fraction of bootstrapped samples with larger distance than data's
+		pvalue = curve_devs[ curve_devs > curve ].size / float( curve_devs.size )
+		perror = 1 / ( 2 * np.sqrt( curve_devs.size ) )
+		print('\tp-value: {:.2f} +- {:.2f}'.format(pvalue, perror))
 
 		#plot plot!
 
@@ -177,13 +204,6 @@ if __name__ == "__main__":
 	# pnu_resc_vals = np.logspace( -3, np.log10( 4e-1 ), 50 ) #pick rescaled pnu as variable
 	# ptau_resc_vals = 1 / pnu_resc_vals #and slide over universal curve
 
-		# #get rescaled model parameters (in data)
-		# pnu_resc = ( params_model['pnu'] - params_model['p0'] * params_model['open_deriv'] ) / params_model['open_deriv']
-		# ptau_resc = params_model['ptau'] / ( params_model['p0'] * (1 - params_model['p0']) * params_model['open_deriv'] )
-
-		# #get rescaled model parameters (in bootstrapped samples of model)
-		# pnu_resc_devs = ( ( params_devs['pnu'] - params_devs['p0'] * params_devs['open_deriv'] ) / params_devs['open_deriv'] ).rename('pnu_resc')
-		# ptau_resc_devs = ( params_devs['ptau'] / ( params_devs['p0'] * (1 - params_devs['p0']) * params_devs['open_deriv'] ) ).rename('ptau_resc')
 		# params_resc_devs = pd.concat( [ pnu_resc_devs, ptau_resc_devs ], axis=1 ) #and join
 
 		#rescaled fitted parameters for data
