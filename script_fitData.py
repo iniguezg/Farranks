@@ -22,9 +22,10 @@ if __name__ == "__main__":
 
 	#flags and locations
 	loadflag = 'n'
-	# root_loc = expanduser('~') + '/prg/xocial/Farranks/' #root location
-	# saveloc_data = root_loc+'nullModel/v4/files/' #location of output files
-	saveloc_data = '/m/cs/scratch/networks/inigueg1/prg/xocial/Farranks/nullModel/v4/files/'
+	root_loc = expanduser('~') + '/prg/xocial/Farranks/' #root location
+	saveloc_data = root_loc+'nullModel/v4/files/' #location of output files
+	saveloc_mle = root_loc+'nullModel/v4/files/params/params_mle/'
+	# saveloc_data = '/m/cs/scratch/networks/inigueg1/prg/xocial/Farranks/nullModel/v4/files/'
 
 	#datasets to explore
 	datasets = [ 'AcademicRanking', 'AtlasComplex', 'Citations', 'Cities_RU', 'Cities_UK', 'Earthquakes_avgMagnitude', 'Earthquakes_numberQuakes', 'english', 'enron-sent-mails-weekly', 'FIDEFemale', 'FIDEMale', 'Football_FIFA', 'Football_Scorers', 'Fortune', 'french', 'german', 'github-watch-weekly', 'Golf_OWGR', 'Hienas', 'italian', 'metroMex', 'Nascar_BuschGrandNational', 'Nascar_WinstonCupGrandNational', 'Poker_GPI', 'russian', 'spanish', 'Tennis_ATP', 'TheGuardian_avgRecommends', 'TheGuardian_numberComments', 'UndergroundByWeek' ]
@@ -35,17 +36,17 @@ if __name__ == "__main__":
 	datatypes = { 'AcademicRanking' : 'open', 'AtlasComplex' : 'open', 'Citations' : 'open', 'Cities_RU' : 'open', 'Cities_UK' : 'closed', 'Earthquakes_avgMagnitude' : 'closed', 'Earthquakes_numberQuakes' : 'closed', 'english' : 'open', 'enron-sent-mails-weekly' : 'open', 'FIDEFemale' : 'open', 'FIDEMale' : 'open', 'Football_FIFA' : 'open', 'Football_Scorers' : 'open', 'Fortune' : 'open', 'french' : 'open', 'german' : 'open', 'github-watch-weekly' : 'open', 'Golf_OWGR' : 'open', 'Hienas' : 'open', 'italian' : 'open', 'metroMex' : 'closed', 'Nascar_BuschGrandNational' : 'open', 'Nascar_WinstonCupGrandNational' : 'open', 'Poker_GPI' : 'open', 'russian' : 'open', 'spanish' : 'open','Tennis_ATP' : 'open', 'TheGuardian_avgRecommends' : 'open', 'TheGuardian_numberComments' : 'open', 'UndergroundByWeek' : 'closed' } #type dict
 #	datasets = { 'VideogameEarnings' : 'open', 'Virus' : 'open' } #shady data
 
-	# for dataname in datasets: #loop through considered datasets
-	# 	print( 'dataset name: ' + dataname ) #print dataset
-	#
-	# 	## DATA ##
-	#
-	# 	#get parameters for all datasets and selected dataset
-	# 	params_data = pd.read_pickle( saveloc_data+'params_data.pkl' )
-	# 	params = dict( params_data.loc[ dataname ] ) #(dict to have ints and floats!)
-	#
-	# 	#model fit parameters
-	# 	datatype = datatypes[ dataname ] #dataset type: open, closed
+	for dataname in datasets: #loop through considered datasets
+		print( 'dataset name: ' + dataname ) #print dataset
+
+		## DATA ##
+
+		#get parameters for all datasets and selected dataset
+		params_data = pd.read_pickle( saveloc_data+'params_data.pkl' )
+		params = dict( params_data.loc[ dataname ] ) #(dict to have ints and floats!)
+
+		#model fit parameters
+		datatype = datatypes[ dataname ] #dataset type: open, closed
 
 		# ## analysis 1: get model PD for dataset ##
 		#
@@ -64,14 +65,14 @@ if __name__ == "__main__":
 		# print( params_model )
 
 
-		# ## analysis 4: get optimal parameters for dataset (maximum likelihood estimation) ##
-		#
-		# #do simple fitting first
-		# params_model = data_misc.data_estimate_params_all( dataname, params, 'y', saveloc_data, datatype=datatype )
-		# #do MLE fitting
-		# params_model_mle = data_misc.data_estimate_params_MLE( dataname, params, loadflag, saveloc_data, datatype=datatype, sample_frac=0.1 )
-		# #print status
-		# print( '\tBASIC: pnu = {},\tptau = {}\n\tMLE: pnu = {},\tptau = {}\n'.format( params_model.loc['optimal', 'pnu'], params_model.loc['optimal', 'ptau'], params_model_mle.loc['optimal', 'pnu'], params_model_mle.loc['optimal', 'ptau'] ) )
+		## analysis 4: get optimal parameters for dataset (maximum likelihood estimation) ##
+
+		#do simple fitting first
+		params_model = data_misc.data_estimate_params_all( dataname, params, 'y', saveloc_data, datatype=datatype )
+		#do MLE fitting
+		params_model_mle = data_misc.data_estimate_params_MLE( dataname, params, loadflag, saveloc_data, datatype=datatype, sample_frac=0.1 )
+		#print status
+		print( '\tBASIC: pnu = {},\tptau = {}\n\tMLE: pnu = {},\tptau = {}\n'.format( params_model.loc['optimal', 'pnu'], params_model.loc['optimal', 'ptau'], params_model_mle.loc['optimal', 'pnu'], params_model_mle.loc['optimal', 'ptau'] ) )
 
 
 		# ## analysis 5: get optimal parameters for samples of dataset (all parameters at same time)
@@ -82,20 +83,20 @@ if __name__ == "__main__":
 		# params_model = data_misc.data_estimate_params_sample( dataname, params, location, loadflag, saveloc, datatype=datatype )
 		# print(params_model)
 
-	## analysis 6: estimate parameter deviations for dataset (all parameters at same time)
-
-	ntimes = 2500 #number of realisations (for bootstrap sampling)
-	dataname = sys.argv[1] #considered dataset
-	print( 'dataset name: ' + dataname ) #print dataset
-
-	#get parameters for all datasets and selected dataset
-	params_data = pd.read_pickle( saveloc_data+'params_data.pkl' )
-	params = dict( params_data.loc[ dataname ] ) #(dict to have ints and floats!)
-	params['ntimes'] = ntimes
-	datatype = datatypes[ dataname ] #dataset type: open, closed
-
-	params_devs = data_misc.data_estimate_params_devs( dataname, params, loadflag, saveloc_data, datatype=datatype )
-	print( params_devs, flush=True )
+	# ## analysis 6: estimate parameter deviations for dataset (all parameters at same time)
+	#
+	# ntimes = 2500 #number of realisations (for bootstrap sampling)
+	# dataname = sys.argv[1] #considered dataset
+	# print( 'dataset name: ' + dataname ) #print dataset
+	#
+	# #get parameters for all datasets and selected dataset
+	# params_data = pd.read_pickle( saveloc_data+'params_data.pkl' )
+	# params = dict( params_data.loc[ dataname ] ) #(dict to have ints and floats!)
+	# params['ntimes'] = ntimes
+	# datatype = datatypes[ dataname ] #dataset type: open, closed
+	#
+	# params_devs = data_misc.data_estimate_params_devs( dataname, params, loadflag, saveloc_data, datatype=datatype )
+	# print( params_devs, flush=True )
 
 
 #DEBUGGIN'

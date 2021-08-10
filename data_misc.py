@@ -8,8 +8,6 @@ import pandas as pd
 import pickle as pk
 import random as rn
 import itertools as it
-import scipy.stats as st
-import scipy.optimize as spo
 from datetime import datetime
 import sklearn.metrics as skm
 
@@ -609,10 +607,8 @@ def data_estimate_params_sample( dataname, params, location, loadflag, saveloc, 
 
 
 #function to get optimal model parameters for given dataset (maximum likelihood estimation)
-def data_estimate_params_MLE( dataname, params, loadflag, saveloc_data, datatype='open', sample_frac=False ):
+def data_estimate_params_MLE( dataname, params, loadflag, saveloc_data, datatype='open', sample_frac=False, saveflag='n' ):
 	"""Get optimal model parameters for given dataset (maximum likelihood estimation)"""
-
-	N, N0, T = params['N'], params['N0'], params['T'] #parameters from data
 
 	#filename for model output file
 	param_str_model = dataname+'.pkl'
@@ -623,49 +619,13 @@ def data_estimate_params_MLE( dataname, params, loadflag, saveloc_data, datatype
 	elif loadflag == 'n': #or else, solve system of equations for parameters
 		params_model = pd.DataFrame( np.zeros( ( 1, 2 ) ), index=pd.Series( 'optimal', name='value'), columns=pd.Series( [ 'pnu', 'ptau' ], name='parameter' ) )
 
-		p0 = N0 / float( N ) #ranking fraction
-		dr = 1 / float( N ) #rank increment
-
-		param_str_data = dataname+'_N{}_N0{}_T{}.pkl'.format( N, N0, T ) #filename for data
-
-		#load MLE properties
-		mleTprops = pd.read_pickle( saveloc_data + 'mleTprops_' + param_str_data )
-		mleDprops = pd.read_pickle( saveloc_data + 'mleDprops_' + param_str_data )
-
-		#set up array of observed r, x values
-		#(avoid singularity at r=1 for closed systems; pick sample for larger systems)
-		rank_vals = mleDprops.columns if datatype == 'open' else mleDprops.columns[:-1]
-		rx_vals = [ ( dr * ( rank + 1 ), dr * ( mleDprops.loc[time, rank] + 1 ) ) for rank, time in it.product( rank_vals, mleDprops.index ) if pd.notna( mleDprops.loc[time, rank] ) ]
-		rx_vals_sample = rn.sample( rx_vals, int( sample_frac*len(rx_vals) ) ) if sample_frac else rx_vals
-
-		#ptau MLE equations
-
-		peak_sdev = lambda ptau, r : np.sqrt( 2 * ptau * dr * r * (1 - r) )
-		gaussian = lambda ptau, r, x : st.norm.pdf( x, loc=r, scale=peak_sdev( ptau, r ) )
-		numer_func = lambda ptau, r, x : 1 - ( gaussian( ptau, r, x ) / (2*ptau) )*( ( (x-r)/peak_sdev( ptau, r ) )**2 - 2*ptau*dr - 1 )
-		denom_func = lambda ptau, r, x : gaussian( ptau, r, x ) + np.exp(ptau) - 1
-		ptau_func = lambda ptau : np.abs( np.sum([ numer_func(ptau, r, x) / denom_func(ptau, r, x) for r, x in rx_vals_sample ]) )
-
-		#find ptau root
-		ptau_res = spo.minimize_scalar( ptau_func, bounds=( 0, 1 ), method='bounded', options={'disp':True} )
-		ptau_star = ptau_res.x
-
-#OPEN SYSTEMS
-		if datatype == 'open':
-			#pnu MLE equations
-			surv_times_mean = mleTprops.loc['survival'].dropna().mean()
-			pnu_func = lambda pnu : np.abs( ( pnu**2 + 2*p0*ptau_star*pnu + p0*ptau_star**2 ) / ( pnu*( pnu + ptau_star )*( pnu + p0*ptau_star ) ) - surv_times_mean )
-
-			#find pnu root
-			pnu_res = spo.minimize_scalar( pnu_func, bounds=( 0, 1 ), method='bounded', options={'disp':True} )
-			pnu_star = pnu_res.x
-#CLOSED SYSTEMS
-		if datatype == 'closed':
-			pnu_star = 0.
+		#get optimal model parameters from mle properties (maximum likelihood estimation)
+		ptau_star, pnu_star = model_misc.estimate_params_MLE( dataname, params, saveloc_data, datatype=datatype, sample_frac=sample_frac )
 
 		#save to file!
 		params_model.loc[ 'optimal', [ 'pnu', 'ptau' ] ] = pnu_star, ptau_star
-		params_model.to_pickle( saveloc_data + 'params_model_mle_' + param_str_model )
+		if saveflag == 'y':
+			params_model.to_pickle( saveloc_data + 'params_model_mle_' + param_str_model )
 
 	return params_model
 

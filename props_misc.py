@@ -258,7 +258,8 @@ def get_samp_props( rankseries, elemseries, params ):
 def get_MLE_props( rankseries, elemseries, params ):
 	"""Get MLE properties for rank/element time series of data/model"""
 
-	N, N0, T = params['N'], params['N0'], params['T'] #parameters from data
+	N0, T = params['N0'], params['T'] #parameters from data
+	N = rankseries.columns.size #number of elements ever seen in ranking
 
 	#initialise dataframes of MLE properties
 	#property = survival time

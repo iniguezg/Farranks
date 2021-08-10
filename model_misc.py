@@ -7,6 +7,7 @@ import random
 import numpy as np
 import pandas as pd
 import mpmath as mpm
+import itertools as it
 import scipy.stats as st
 import scipy.special as ss
 import scipy.optimize as spo
@@ -83,9 +84,9 @@ def null_model( params ):
 	return rankseries, elemseries, params_new
 
 
-#function to get average flux/rank/open/succ/samp properties for rank/element time series of null model
+#function to get average flux/rank/open/succ/samp/mle properties for rank/element time series of null model
 def model_props( prop_names, params, loadflag='n', saveloc='', saveflag='n' ):
-	"""Get average flux/rank/open/succ/samp properties for rank/element time series of null model"""
+	"""Get average flux/rank/open/succ/samp/mle properties for rank/element time series of null model"""
 
 	ntimes = params['ntimes'] #number of realisations to average
 
@@ -104,6 +105,8 @@ def model_props( prop_names, params, loadflag='n', saveloc='', saveflag='n' ):
 		savenames['succ'] = ( saveloc + 'success_' + param_str, saveloc + 'surprise_' + param_str )
 	if 'samp' in prop_names:
 		savenames['samp'] = ( saveloc + 'sampprops_' + param_str, )
+	if 'mle' in prop_names:
+		savenames['mle'] = ( saveloc + 'mleTprops_' + param_str, saveloc + 'mleDprops_' + param_str )
 
 	#load/calculate properties
 	if loadflag == 'y': #load files
@@ -121,6 +124,9 @@ def model_props( prop_names, params, loadflag='n', saveloc='', saveflag='n' ):
 			surprise = pd.read_pickle( savenames['succ'][1] )
 		if 'samp' in prop_names:
 			sampprops = pd.read_pickle( savenames['samp'][0] )
+		if 'mle' in prop_names:
+			mleTprops = pd.read_pickle( savenames[0] )
+			mleDprops = pd.read_pickle( savenames[1] )
 
 	elif loadflag == 'n': #or else, compute properties
 
@@ -139,6 +145,8 @@ def model_props( prop_names, params, loadflag='n', saveloc='', saveflag='n' ):
 			success, surprise = props_misc.get_succ_props( rankseries, elemseries, params )
 		if 'samp' in prop_names:
 			sampprops = props_misc.get_samp_props( rankseries, elemseries, params )
+		if 'mle' in prop_names:
+			mleTprops, mleDprops = props_misc.get_MLE_props( rankseries, elemseries, params )
 
 		#and average over remaining realisations
 		for nt in range( ntimes - 1 ):
@@ -170,6 +178,10 @@ def model_props( prop_names, params, loadflag='n', saveloc='', saveflag='n' ):
 			if 'samp' in prop_names:
 				sampprops_one = props_misc.get_samp_props( rankseries, elemseries, params )
 				sampprops += sampprops_one
+			if 'mle' in prop_names:
+				mleTprops_one, mleDprops_one = props_misc.get_MLE_props( rankseries, elemseries, params )
+				mleTprops += mleTprops_one
+				mleDprops += mleDprops_one
 
 		#get averages!
 		params_new['N'] = int( params_new['N'] / float(ntimes) ) #first varying parameters
@@ -201,6 +213,12 @@ def model_props( prop_names, params, loadflag='n', saveloc='', saveflag='n' ):
 			sampprops /= ntimes
 			if saveflag == 'y':
 				sampprops.to_pickle( savenames['samp'][0] ) #and save result
+		if 'mle' in prop_names:
+			mleTprops /= ntimes
+			mleDprops /= ntimes
+			if saveflag == 'y':
+				mleTprops.to_pickle( savenames['mle'][0] ) #and save result
+				mleDprops.to_pickle( savenames['mle'][1] )
 
 	prop_dict = {} #initialise dict of properties to return
 	if loadflag == 'n':
@@ -217,6 +235,8 @@ def model_props( prop_names, params, loadflag='n', saveloc='', saveflag='n' ):
 		prop_dict['succ'] = ( success, surprise )
 	if 'samp' in prop_names:
 		prop_dict['samp'] = ( sampprops, )
+	if 'mle' in prop_names:
+		prop_dict['mle'] = ( mleTprops, mleDprops )
 
 	return prop_dict
 
@@ -496,6 +516,59 @@ def estimate_params_all( dataname, params, saveloc, prop_dict=None, datatype='op
 	return flux_f, open_deriv_f, success_f, p0_f, ptau_star, pnu_star
 
 
+#function to get optimal model parameters from mle properties (maximum likelihood estimation)
+def estimate_params_MLE( dataname, params, saveloc, prop_dict=None, datatype='open', sample_frac=False ):
+	"""Get optimal model parameters from mle properties (maximum likelihood estimation)"""
+
+	N, N0, T = params['N'], params['N0'], params['T'] #get parameters
+
+	p0 = N0 / float( N ) #ranking fraction
+	dr = 1 / float( N ) #rank increment
+
+	if prop_dict: #if we supply properties directly
+		mleTprops, mleDprops = prop_dict['mle'] #MLE properties
+
+	else: #or from files
+		param_str = dataname+'_N{}_N0{}_T{}.pkl'.format( N, N0, T ) #filename
+		mleTprops = pd.read_pickle( saveloc + 'mleTprops_' + param_str )
+		mleDprops = pd.read_pickle( saveloc + 'mleDprops_' + param_str )
+
+	#set up array of observed r, x values
+	#(avoid singularity at r=1 for closed systems; pick sample for larger systems)
+	rank_vals = mleDprops.columns if datatype == 'open' else mleDprops.columns[:-1]
+	rx_vals = [ ( dr * ( rank + 1 ), dr * ( mleDprops.loc[time, rank] + 1 ) ) for rank, time in it.product( rank_vals, mleDprops.index ) if pd.notna( mleDprops.loc[time, rank] ) ]
+	rx_vals_sample = rn.sample( rx_vals, int( sample_frac*len(rx_vals) ) ) if sample_frac else rx_vals
+
+	#ptau MLE equations
+
+	peak_sdev = lambda ptau, r : np.sqrt( 2 * ptau * dr * r * (1 - r) )
+	gaussian = lambda ptau, r, x : st.norm.pdf( x, loc=r, scale=peak_sdev( ptau, r ) )
+	numer_func = lambda ptau, r, x : 1 - ( gaussian( ptau, r, x ) / (2*ptau) )*( ( (x-r)/peak_sdev( ptau, r ) )**2 - 2*ptau*dr - 1 )
+	denom_func = lambda ptau, r, x : gaussian( ptau, r, x ) + np.exp(ptau) - 1
+	ptau_func = lambda ptau : np.abs( np.sum([ numer_func(ptau, r, x) / denom_func(ptau, r, x) for r, x in rx_vals_sample ]) )
+
+	#find ptau root
+	ptau_res = spo.minimize_scalar( ptau_func, bounds=( 0, 1 ), method='bounded', options={'disp':True} )
+	ptau_star = ptau_res.x
+
+#OPEN SYSTEMS
+	if datatype == 'open':
+		#pnu MLE equations
+		surv_times_mean = mleTprops.loc['survival'].dropna().mean()
+		print('1/<t>= {}'.format( 1/surv_times_mean )) #print out
+
+		pnu_func = lambda pnu : np.abs( ( pnu**2 + 2*p0*ptau_star*pnu + p0*ptau_star**2 ) / ( pnu*( pnu + ptau_star )*( pnu + p0*ptau_star ) ) - surv_times_mean )
+
+		#find pnu root
+		pnu_res = spo.minimize_scalar( pnu_func, bounds=( 0, 1 ), method='bounded', options={'disp':True} )
+		pnu_star = pnu_res.x
+#CLOSED SYSTEMS
+	if datatype == 'closed':
+		pnu_star = 0.
+
+	return ptau_star, pnu_star
+
+
 ## RUNNING MODEL MISC MODULE ##
 
 if __name__ == "__main__":
@@ -647,3 +720,49 @@ if __name__ == "__main__":
 # 	flux_theo = 1 - np.exp( -pnu*t ) * ( p0 + (1 - p0) * np.exp( -ptau*t ) )
 #
 # 	return flux_theo
+
+# #function to get optimal model parameters from mle properties (maximum likelihood estimation)
+# def estimate_params_MLE( dataname, params, saveloc, prop_dict=None, datatype='open', sample_frac=False ):
+# 	"""Get optimal model parameters from mle properties (maximum likelihood estimation)"""
+#
+# 	N, N0, T = params['N'], params['N0'], params['T'] #get parameters
+#
+# 	p0 = N0 / float( N ) #ranking fraction
+#
+# 	if prop_dict: #if we supply properties directly
+# 		mleTprops, not_used = prop_dict['mle'] #MLE properties
+#
+# 	else: #or from files
+# 		param_str = dataname+'_N{}_N0{}_T{}.pkl'.format( N, N0, T ) #filename
+# 		mleTprops = pd.read_pickle( saveloc + 'mleTprops_' + param_str )
+#
+# #OPEN SYSTEMS
+# 	if datatype == 'open':
+# 		#survival times mean
+# 		surv_times_mean = mleTprops.loc['survival'].dropna().mean()
+# 		# print('1/<t>= {}'.format( 1/surv_times_mean )) #print out
+#
+# 		pnu_star = 1 / surv_times_mean #solution from exp dist MLE
+# #CLOSED SYSTEMS
+# 	if datatype == 'closed':
+# 		pnu_star = 0.
+#
+# #OPEN SYSTEMS
+# 	if datatype == 'open':
+# 		#survival times
+# 		surv_times = mleTprops.loc['survival'].dropna()
+# 		# print( surv_times )
+#
+# 		#ptau MLE equations
+# 		left_func = lambda ptau : pnu_star / ( ( pnu_star + p0*ptau )*( pnu_star + ptau ) )
+# 		right_func = lambda ptau : float( mpm.fsum([ t / ( 1 + p0*( mpm.exp( ptau*t ) - 1 ) ) for t in surv_times ]) / len( surv_times ) )
+# 		ptau_func = lambda ptau : np.abs( left_func(ptau) - right_func(ptau) )
+#
+# 		#find ptau root
+# 		ptau_res = spo.minimize_scalar( ptau_func, bounds=( 0, 1 ), method='bounded', options={'disp':True} )
+# 		ptau_star = ptau_res.x
+# #CLOSED SYSTEMS
+# 	if datatype == 'closed':
+# 		ptau_star = np.nan
+#
+# 	return ptau_star, pnu_star
