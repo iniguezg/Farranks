@@ -98,7 +98,7 @@ if __name__ == "__main__":
 	grid.update( **fig_props['grid_params'] )
 
 
-# A: Rescaled parameters across universal curve under sampling
+# A: Fractional variations in fitted parameters of bootstrapped model
 
 	sel_datasets = [ dataname for dataname in fluxmean_data.index if datasets_openclosed[ dataname ] == 'open' ]
 	# sel_datasets = ['english']
@@ -136,14 +136,8 @@ if __name__ == "__main__":
 		ptau_resc_devs = ( params_devs.ptau / ( params_devs.p0 * (1 - params_devs.p0) * params_devs.open_deriv ) ).rename('ptau_resc')
 
 		#get distance from universal curve (in data/samples)
-		# curve = np.abs( ptau_resc - 1/pnu_resc )
-		# curve_devs = np.abs( ptau_resc_devs - 1/pnu_resc_devs )
-		# curve = np.abs( pnu_resc - 1/ptau_resc )
-		# curve_devs = np.abs( pnu_resc_devs - 1/ptau_resc_devs )
-		# curve = ( ptau_resc - 1/pnu_resc )**2 + ( pnu_resc - 1/ptau_resc )**2
-		# curve_devs = ( ptau_resc_devs - 1/pnu_resc_devs )**2 + ( pnu_resc_devs - 1/ptau_resc_devs )**2
-		curve = np.abs( np.log10( ptau_resc * pnu_resc ) )
-		curve_devs = np.abs( np.log10( ptau_resc_devs * pnu_resc_devs ) )
+		curve = np.abs( np.log( ptau_resc * pnu_resc ) )
+		curve_devs = np.abs( np.log( ptau_resc_devs * pnu_resc_devs ) )
 
 		#p-value as fraction of bootstrapped samples with larger distance than data's
 		pvalue = curve_devs[ curve_devs > curve ].size / float( curve_devs.size )
@@ -153,8 +147,8 @@ if __name__ == "__main__":
 		#plot plot!
 
 		#fitted parameters for data
-		plt.axhline( ls='--', c='0.3', lw=plot_props['linewidth'], zorder=1 )
-		plt.axvline( ls='--', c='0.3', lw=plot_props['linewidth'], zorder=1 )
+		plt.axhline( ls='--', c='0.5', lw=plot_props['linewidth'], zorder=1 )
+		plt.axvline( ls='--', c='0.5', lw=plot_props['linewidth'], zorder=1 )
 
 		#KDE/mean of bootstrapped model
 
@@ -167,8 +161,10 @@ if __name__ == "__main__":
 			sns.kdeplot( data=xyplot, x='pnu_frac', y='ptau_frac', ax=ax, fill=True, palette='GnBu', levels=np.linspace(0.1, 1., 10), zorder=0 )
 
 		#texts
-
 		plt.text( 0.5, 1.25, datasets[ dataname ], va='center', ha='center', transform=ax.transAxes, fontsize=plot_props['ticklabel'] )
+
+		pvalue_str = '$\Lambda =$ {:.2f} $\pm$ {:.2f}'.format( pvalue, perror )
+		plt.text( 0.02, 0.99, pvalue_str, va='top', ha='left', transform=ax.transAxes, fontsize=plot_props['text_size'])
 
 		if grid_pos == 0:
 			plt.text( -0.68, 0.5, 'open', va='center', ha='center', transform=ax.transAxes, weight='bold', rotation='vertical', fontsize=plot_props['xylabel'] )
@@ -216,3 +212,9 @@ if __name__ == "__main__":
 
 			# plt.xlabel( r'$\nu_r$', size=plot_props['xylabel'], labelpad=2 )
 			# plt.ylabel( r'$\tau_r$', size=plot_props['xylabel'], labelpad=2 )
+		# curve = np.abs( ptau_resc - 1/pnu_resc )
+		# curve_devs = np.abs( ptau_resc_devs - 1/pnu_resc_devs )
+		# curve = np.abs( pnu_resc - 1/ptau_resc )
+		# curve_devs = np.abs( pnu_resc_devs - 1/ptau_resc_devs )
+		# curve = ( ptau_resc - 1/pnu_resc )**2 + ( pnu_resc - 1/ptau_resc )**2
+		# curve_devs = ( ptau_resc_devs - 1/pnu_resc_devs )**2 + ( pnu_resc_devs - 1/ptau_resc_devs )**2
