@@ -34,7 +34,7 @@ r"""
 \toprule
 & & & \multicolumn{4}{c}{Measure} \\
 \cmidrule(l){4-7}
-Dataset & Element & Score & $N_{T - 1}$ & $N_0$ & $T$ & $\langle \tau_{\mathrm{days}} \rangle$ \\
+Dataset & Element & Score & $N_{T - 1}$ & $N_0$ & $T$ & $\ell$ (days) \\
 \midrule
 {\bf Society} & & & & & & \\
 \cmidrule(l){1-1}

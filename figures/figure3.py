@@ -22,7 +22,8 @@ if __name__ == "__main__":
 	#flags and locations
 	loadflag = 'y'
 	root_loc = expanduser('~') + '/prg/xocial/Farranks/' #root location
-	saveloc_data = root_loc+'nullModel/v4/files/' #location of output files
+	saveloc_data = root_loc+'nullModel/v4/files/' #location of data/sampling files
+	saveloc_samp = root_loc+'nullModel/v4/files/sampling/'
 	figuloc = root_loc+'nullModel/v4/figures/' #location of figure files
 
 	#dataset short names, types, and colors
@@ -30,7 +31,7 @@ if __name__ == "__main__":
 	datasets = { 'AcademicRanking' : 'universities', 'AtlasComplex' : 'countries', 'Citations' : 'scientists', 'Cities_RU' : 'cities (RU)', 'Cities_UK' : 'cities (GB)', 'Earthquakes_avgMagnitude' : 'regions JP\n(quake mag)', 'Earthquakes_numberQuakes' : 'regions JP\n(quakes)', 'english' : 'English', 'enron-sent-mails-weekly' : 'Enron emails', 'FIDEFemale' : 'chess players\n(female)', 'FIDEMale' : 'chess players\n(male)', 'Football_FIFA' : 'national football\nteams', 'Football_Scorers' : 'Football scorers', 'Fortune' : 'companies', 'french' : 'French', 'german' : 'German', 'github-watch-weekly' : 'GitHub\nrepositories', 'Golf_OWGR' : 'golf players', 'Hienas' : 'hyenas', 'italian' : 'Italian', 'metroMex' : 'metro stations\n(Mexico)', 'Nascar_BuschGrandNational' : 'Nascar drivers\n(Busch)', 'Nascar_WinstonCupGrandNational' : 'Nascar drivers\n(Winston Cup)', 'Poker_GPI' : 'poker players', 'russian' : 'Russian', 'spanish' : 'Spanish', 'Tennis_ATP' : 'tennis players', 'TheGuardian_avgRecommends' : 'The Guardian\nreaders (recc)', 'TheGuardian_numberComments' : 'The Guardian\nreaders (comm)', 'UndergroundByWeek' : 'metro stations\n(London)' } #name dict
 #	datasets = { 'VideogameEarnings' : 'videogame\nplayers', 'Virus' : 'viruses' } #shady data
 
-	datasets_oneliners = { 'AcademicRanking' : 'universities', 'AtlasComplex' : 'countries', 'Citations' : 'scientists', 'Cities_RU' : 'cities (RU)', 'Cities_UK' : 'cities (GB)', 'Earthquakes_avgMagnitude' : 'regions JP (quake mag)', 'Earthquakes_numberQuakes' : 'regions JP(quakes)', 'english' : 'English', 'enron-sent-mails-weekly' : 'Enron emails', 'FIDEFemale' : 'chess players (female)', 'FIDEMale' : 'chess players (male)', 'Football_FIFA' : 'national football teams', 'Football_Scorers' : 'Football scorers', 'Fortune' : 'companies', 'french' : 'French', 'german' : 'German', 'github-watch-weekly' : 'GitHub repositories', 'Golf_OWGR' : 'golf players', 'Hienas' : 'hyenas', 'italian' : 'Italian', 'metroMex' : 'metro stations (Mexico)', 'Nascar_BuschGrandNational' : 'Nascar drivers (Busch)', 'Nascar_WinstonCupGrandNational' : 'Nascar drivers (Winston Cup)', 'Poker_GPI' : 'poker players', 'russian' : 'Russian', 'spanish' : 'Spanish', 'Tennis_ATP' : 'tennis players', 'TheGuardian_avgRecommends' : 'The Guardian readers (recc)', 'TheGuardian_numberComments' : 'The Guardian readers (comm)', 'UndergroundByWeek' : 'metro stations (London)' } #name dict
+	datasets_oneliners = { 'AcademicRanking' : 'universities', 'AtlasComplex' : 'countries', 'Citations' : 'scientists', 'Cities_RU' : 'cities (RU)', 'Cities_UK' : 'cities (GB)', 'Earthquakes_avgMagnitude' : 'regions JP (quake mag)', 'Earthquakes_numberQuakes' : 'regions JP(quakes)', 'english' : 'English', 'enron-sent-mails-weekly' : 'Enron emails *', 'FIDEFemale' : 'chess players (female)', 'FIDEMale' : 'chess players (male)', 'Football_FIFA' : 'national football teams', 'Football_Scorers' : 'Football scorers', 'Fortune' : 'companies', 'french' : 'French', 'german' : 'German', 'github-watch-weekly' : 'GitHub repositories', 'Golf_OWGR' : 'golf players', 'Hienas' : 'hyenas *', 'italian' : 'Italian', 'metroMex' : 'metro stations (Mexico)', 'Nascar_BuschGrandNational' : 'Nascar drivers (Busch) *', 'Nascar_WinstonCupGrandNational' : 'Nascar drivers (Winston Cup)', 'Poker_GPI' : 'poker players', 'russian' : 'Russian', 'spanish' : 'Spanish', 'Tennis_ATP' : 'tennis players', 'TheGuardian_avgRecommends' : 'The Guardian readers (recc) *', 'TheGuardian_numberComments' : 'The Guardian readers (comm)', 'UndergroundByWeek' : 'metro stations (London)' } #name dict
 #	datasets_oneliners = { 'VideogameEarnings' : 'videogame players', 'Virus' : 'viruses' } #shady data
 
 	datasets_openclosed = { 'AcademicRanking' : 'open', 'AtlasComplex' : 'open', 'Citations' : 'open', 'Cities_RU' : 'open', 'Cities_UK' : 'closed', 'Earthquakes_avgMagnitude' : 'closed', 'Earthquakes_numberQuakes' : 'closed', 'english' : 'open', 'enron-sent-mails-weekly' : 'open', 'FIDEFemale' : 'open', 'FIDEMale' : 'open', 'Football_FIFA' : 'closed', 'Football_Scorers' : 'open', 'Fortune' : 'open', 'french' : 'open', 'german' : 'open', 'github-watch-weekly' : 'open', 'Golf_OWGR' : 'open', 'Hienas' : 'open', 'italian' : 'open', 'metroMex' : 'closed', 'Nascar_BuschGrandNational' : 'open', 'Nascar_WinstonCupGrandNational' : 'open', 'Poker_GPI' : 'open', 'russian' : 'open', 'spanish' : 'open','Tennis_ATP' : 'open', 'TheGuardian_avgRecommends' : 'open', 'TheGuardian_numberComments' : 'open', 'UndergroundByWeek' : 'closed' } #type dict
@@ -57,7 +58,7 @@ if __name__ == "__main__":
 	'linewidth' : 2,
 	'tickwidth' : 1,
 	'barwidth' : 0.8,
-	'legend_prop' : { 'size':11 },
+	'legend_prop' : { 'size':10 },
 	'legend_hlen' : 1,
 	'legend_np' : 1,
 	'legend_colsp' : 1.1 }
@@ -66,10 +67,10 @@ if __name__ == "__main__":
 
 	fig_props = { 'fig_num' : 3,
 	'fig_size' : (12, 6),
-	'aspect_ratio' : (5, 5),
-	'grid_params' : dict( left=0.05, bottom=0.08, right=0.985, top=0.965, wspace=0, hspace=0 ),
-	'height_ratios' : [1, 0.2, 1, 0.6, 1],
-	'width_ratios' : [1, 0.15, 1, 0.5, 1],
+	'aspect_ratio' : (2, 2),
+	'grid_params' : dict( left=0.045, bottom=0.07, right=0.985, top=0.98, wspace=0.2, hspace=0.6 ),
+	'height_ratios' : [1, 0.3],
+	'width_ratios' : [1, 0.3],
 	'dpi' : 300,
 	'savename' : 'figure3' }
 
@@ -78,6 +79,7 @@ if __name__ == "__main__":
 
 	#get parameters for all datasets
 	params_data = pd.read_pickle( saveloc_data+'params_data.pkl' )
+	intervals_data = pd.read_pickle( saveloc_data+'intervals_data.pkl' )
 
 
 	## PLOTTING ##
@@ -90,7 +92,7 @@ if __name__ == "__main__":
 	grid.update( **fig_props['grid_params'] )
 
 
-# A: Universal curve of rescaled model parameters for open/closed systems
+# A: Universal curve of rescaled model parameters for open systems
 
 	print( 'UNIVERSAL CURVE' ) #to know where we stand
 
@@ -122,13 +124,13 @@ if __name__ == "__main__":
 	'Cities_RU' : ( -20, -13, 'center', 'right' ) }
 
 	#initialise subplot
-	subgrid = grid[ 2:, :3 ].subgridspec( 3, 1, hspace=0, height_ratios=[0.1, 1, 0.1] )
-	ax = plt.subplot( subgrid[1] )
+	subgrid = grid[ 0, 0 ].subgridspec( 2, 1, hspace=0, height_ratios=[0.15, 1] )
+	ax = plt.subplot( subgrid[ 1 ] )
 	sns.despine( ax=ax ) #take out top and right spines
 	plt.xlabel( r'$\nu_r$', size=plot_props['xylabel'], labelpad=-3 )
 	plt.ylabel( r'$\tau_r$', size=plot_props['xylabel'], labelpad=0 )
 
-	plt.text( -0.07, 1.07, 'a', va='center', ha='center', transform=ax.transAxes, fontsize=plot_props['figlabel'], weight='bold' )
+	plt.text( -0.04, 1.05, 'a', va='bottom', ha='right', transform=ax.transAxes, fontsize=plot_props['figlabel'], weight='bold' )
 
 	for type in [ 'society', 'languages', 'economics', 'infrastructure', 'nature', 'sports' ]: #loop through types (ordered like Table S1)
 		sel_datasets = [ dataname for dataname in systems[ type ] if datasets_openclosed[ dataname ] == 'open' ] #consider only open datasets
@@ -139,7 +141,7 @@ if __name__ == "__main__":
 			#prepare data
 
 			#get parameters for dataset
-			params = dict( params_data.loc[ dataname ] ) #(dict to have ints and floats!)
+			params = params_data.loc[ dataname ]
 			N, N0, T = params['N'], params['N0'], params['T'] #get parameters from data
 			param_str_data = dataname+'_N{}_N0{}_T{}.pkl'.format( N, N0, T )
 
@@ -173,10 +175,10 @@ if __name__ == "__main__":
 	#universal curve in model
 	pnu_resc_vals = np.logspace( -3, np.log10( 4e-1 ), 50 ) #pick rescaled pnu as variable
 	ptau_resc_vals = 1 / pnu_resc_vals #and slide over universal curve
-	plt.plot( pnu_resc_vals, ptau_resc_vals, '--', c='0.2', lw=plot_props['linewidth'], label=r'$\tau_r \nu_r = 1$', zorder=0 )
+	plt.loglog( pnu_resc_vals, ptau_resc_vals, '--', c='0.5', lw=plot_props['linewidth'], label=r'$\tau_r \nu_r = 1$', zorder=0 )
 
 	#legend
-	leg = plt.legend( loc='upper left', bbox_to_anchor=(-0.09, -0.125), prop=plot_props['legend_prop'], handlelength=1.7, numpoints=plot_props['legend_np'], columnspacing=plot_props['legend_colsp'], ncol=len(systems)+1 )
+	leg = plt.legend( loc='lower left', bbox_to_anchor=(-0.02, 1.04), prop=plot_props['legend_prop'], handlelength=1.7, numpoints=plot_props['legend_np'], columnspacing=plot_props['legend_colsp'], ncol=len(systems)+1 )
 
 	#finalise subplot
 	plt.axis([ 1e-3, 4e-1, 2.5e-0, 1e3 ])
@@ -185,46 +187,147 @@ if __name__ == "__main__":
 	plt.minorticks_off()
 
 
-# B: Regimes of Levy/Diffusion/replacement dynamics in open/closed systems
+# B1: Effect of subsampling in open systems
+
+	print( 'EFFECT OF SUBSAMPLING 1' ) #to know where we stand
+
+	kmax = 15 #max sampling jump
+
+	#initialise subplot
+	subgrid = grid[ 0, 1 ].subgridspec( 4, 4, hspace=0.1, wspace=0, height_ratios=[1, 0.3, 0.05, 0.8] )
+	ax = plt.subplot( subgrid[ 0, : ] )
+	sns.despine( ax=ax ) #take out top and right spines
+	plt.xlabel( r'$k$', size=plot_props['xylabel'], labelpad=-3 )
+	plt.ylabel( r'$\nu / k \ell$', size=plot_props['xylabel'], labelpad=0 )
+
+	plt.text( -0.2, 0.8, 'b', va='bottom', ha='right', transform=ax.transAxes, fontsize=plot_props['figlabel'], weight='bold' )
+
+	for type in [ 'society', 'languages', 'economics', 'infrastructure', 'nature', 'sports' ]: #loop through types (ordered like Table S1)
+		sel_datasets = [ dataname for dataname in systems[ type ] if datasets_openclosed[ dataname ] == 'open' ] #consider only open datasets
+
+		for pos, dataname in enumerate( sel_datasets ): #loop through (open) datasets
+			print( 'dataset name: ' + dataname ) #print dataset		print( 'dataset name: ' + dataname ) #print dataset
+
+			#load parameters and fitted model parameters for samples of original dataset
+			params = params_data.loc[ dataname ]
+			params_sample = pd.read_pickle( saveloc_samp+'params_sample_'+dataname+'.pkl' )
+			params_model = pd.read_pickle( saveloc_samp+'params_model_'+dataname+'.pkl' )
+			params_all = pd.concat( [ params_sample, params_model ], axis=1 ) #join
+
+			#filter data (with sampling fraction larger than threshold!)
+			params_plot = params_all[ :kmax ]
+
+			#plot plot!
+			yplot = params_plot.pnu / ( params_plot.index * intervals_data.loc[dataname, 'tdays'] )
+			plt.semilogy( params_plot.index, yplot, c=datacols[ type ], lw=plot_props['linewidth'] )
+
+	#finalise subplot
+	plt.axis([ 1, kmax, 1e-6, 2e-2 ])
+	ax.tick_params( axis='x', which='major', direction='in', labelsize=plot_props['ticklabel'], length=2, pad=3 )
+	ax.tick_params( axis='y', which='major', direction='in', labelsize=plot_props['ticklabel'], length=2, pad=2 )
+	plt.minorticks_off()
+
+
+# B2: Effect of subsampling in open systems
+
+	print( 'EFFECT OF SUBSAMPLING 2' ) #to know where we stand
+
+	samp_thres = 0.1 #sampling threshold
+
+	#datasets
+	sel_datasets = [ 'github-watch-weekly', 'Citations' ]
+
+	formats = {
+	'github-watch-weekly' : ( 0.2, 0.5 ),
+	'Citations' : ( 0.85, 0.4 ) }
+
+	#initialise subplot
+	ax = plt.subplot( subgrid[ 3, : ] )
+	sns.despine( ax=ax ) #take out top and right spines
+	plt.xlabel( r'$\nu_r$', size=plot_props['xylabel'], labelpad=-3 )
+	plt.ylabel( r'$\tau_r$', size=plot_props['xylabel'], labelpad=0 )
+
+	for grid_pos, dataname in enumerate( sel_datasets ): #loop through datasets
+		print( 'dataset name: ' + dataname ) #print dataset
+
+		#load parameters and fitted model parameters for samples of original dataset
+		params = params_data.loc[ dataname ]
+		params_sample = pd.read_pickle( saveloc_samp+'params_sample_'+dataname+'.pkl' )
+		params_model = pd.read_pickle( saveloc_samp+'params_model_'+dataname+'.pkl' )
+		params_all = pd.concat( [ params_sample, params_model ], axis=1 ) #join all
+
+		#get rescaled model parameters (as a function of sampling jump)
+		pnu_resc = ( ( params_all['pnu'] - params_all['p0'] * params_all['open_deriv'] ) / params_all['open_deriv'] ).rename('pnu_resc')
+		ptau_resc = ( params_all['ptau'] / ( params_all['p0'] * (1 - params_all['p0']) * params_all['open_deriv'] ) ).rename('ptau_resc')
+		#fraction of observations (out of T) left by (sub)sampling
+		samp_frac = ( params_all['T'] / float( params['T'] ) ).rename('samp_frac')
+
+		params_all = pd.concat( [ params_all, ptau_resc, pnu_resc, samp_frac ], axis=1 ) #join all
+
+		#filter data (with sampling fraction larger than threshold!)
+		params_plot = params_all[ params_all.samp_frac > samp_thres ]
+
+		#plot plot!
+
+		#(filtered) sampled dataset
+		scat = plt.scatter( params_plot['pnu_resc'], params_plot['ptau_resc'], c=params_plot['samp_frac'], vmin=0, vmax=1, cmap='winter_r', s=20, zorder=1 )
+
+		#texts
+		plt.text( *formats[dataname], datasets[dataname], va='center', ha='center', transform=ax.transAxes, fontsize=plot_props['ticklabel']-1, color='0.4' )
+
+	#universal curve in model
+	pnu_resc_vals = np.logspace( -3, np.log10( 4e-1 ), 50 ) #pick rescaled pnu as variable
+	ptau_resc_vals = 1 / pnu_resc_vals #and slide over universal curve
+	plt.loglog( pnu_resc_vals, ptau_resc_vals, '--', c='0.5', lw=plot_props['linewidth'], label=r'$\tau_r \nu_r = 1$', zorder=0 )
+
+	#finalise subplot
+	plt.axis([ 1e-3, 4e-1, 2.5e-0, 1e3 ])
+	ax.tick_params( axis='x', which='major', direction='in', labelsize=plot_props['ticklabel'], length=2, pad=3 )
+	ax.tick_params( axis='y', which='major', direction='in', labelsize=plot_props['ticklabel'], length=2, pad=2 )
+	plt.minorticks_off()
+
+	#colorbar
+	cax = plt.subplot( subgrid[ 2, 2: ] )
+	cbar = plt.colorbar( scat, cax=cax, orientation='horizontal' )
+	plt.text( -0.3, 0, '$T_{\mathrm{eff}} / T=$', va='center', ha='center', transform=cax.transAxes, fontsize=11 )
+
+
+# C-E: Regimes of Levy/Diffusion/replacement dynamics in open systems
 
 	print( 'REGIMES OF DYNAMICS' ) #to know where we stand
 
 	#datasets
-	sel_datasets = [ 'github-watch-weekly', 'TheGuardian_numberComments', 'Citations', 'Hienas', 'simulated system' ] #dataset examples
-
+	sel_datasets = [ 'github-watch-weekly', 'english', 'Citations', 'simulated system' ]
 	#params for simulation of replacement regime
 	params_sim = { 'ptau' : 0.1, 'pnu' : 0.8, 'p0' : 0.1 }
-
 	#plot variables
-	sel_tuples = [ (0, 0), (0, 2), (0, 4), (2, 4), (4, 4) ] #plot positions
-	colors = sns.color_palette( 'Paired', n_colors=3 ) #colors to plot
+	colors = sns.color_palette( 'Paired', n_colors=3 )
 
-	for grid_pos, grid_tuple in enumerate( sel_tuples ): #loop through subplot
+	#initialise subplot
+	subgrid = grid[ 1, : ].subgridspec( 1, 4, wspace=0.2 )
+
+	for grid_pos, dataname in enumerate( sel_datasets ): #loop through datasets
+		print( 'dataset name: ' + dataname ) #print dataset
 
 		#initialise subplot
-		ax = plt.subplot( grid[ grid_tuple ] )
+		ax = plt.subplot( subgrid[ grid_pos ] )
 		sns.despine( ax=ax ) #take out top and right spines
-		if grid_pos != 2:
-			plt.xlabel( r'$\nu_r$', size=plot_props['xylabel'], labelpad=-3 )
-		if grid_pos != 1:
-			plt.ylabel( r'$W_{\bullet}$', size=plot_props['xylabel'], labelpad=0 )
+		plt.xlabel( r'$\nu_r$', size=plot_props['xylabel'], labelpad=-3 )
+		if grid_pos == 0:
+			plt.ylabel( r'$W_{\bullet}$', size=plot_props['xylabel'], labelpad=2 )
 
 		#subfigure labels
 		if grid_pos == 0:
-			plt.text( -0.15, 1.02, 'b', va='center', ha='center', transform=ax.transAxes, fontsize=plot_props['figlabel'], weight='bold' )
-		if grid_pos == 2:
-			plt.text( -0.17, 1.02, 'c', va='center', ha='center', transform=ax.transAxes, fontsize=plot_props['figlabel'], weight='bold' )
-		if grid_pos == 4:
-			plt.text( -0.17, 1.02, 'd', va='center', ha='center', transform=ax.transAxes, fontsize=plot_props['figlabel'], weight='bold' )
+			plt.text( -0.12, 0.95, 'c', va='bottom', ha='right', transform=ax.transAxes, fontsize=plot_props['figlabel'], weight='bold' )
+		if grid_pos == 1:
+			plt.text( -0.03, 0.95, 'd', va='bottom', ha='right', transform=ax.transAxes, fontsize=plot_props['figlabel'], weight='bold' )
+		if grid_pos == 3:
+			plt.text( -0.03, 0.95, 'e', va='bottom', ha='right', transform=ax.transAxes, fontsize=plot_props['figlabel'], weight='bold' )
 
 		#prepare data
 
-		#select dataset
-		dataname = sel_datasets[ grid_pos ]
-		print( '\t'+dataname ) #to know where we stand
-
 		#get parameters
-		if grid_pos != 4: #real datasets
+		if grid_pos < 3: #real datasets
 
 			params = dict( params_data.loc[ dataname ] ) #(dict to have ints and floats!)
 			N, N0, T = params['N'], params['N0'], params['T'] #get parameters from data
@@ -285,43 +388,42 @@ if __name__ == "__main__":
 		plt.semilogx( pnu_resc_vals, W_repl_vals, label='$W_{\mathrm{repl}}$', lw=plot_props['linewidth'], c=colors[2], zorder=1 )
 
 		#line at rescaled pnu
-		handle_param = plt.axvline( pnu_resc, ls='--', c='0.6', label=None, lw=plot_props['linewidth'], zorder=0 )
+		handle_param = plt.axvline( pnu_resc, ls='--', c='0.5', label=None, lw=plot_props['linewidth'], zorder=0 )
 
 		#texts
-		if grid_pos != 4:
+		if grid_pos < 3:
 			dset_str = datasets_oneliners[ dataname ]
 		else:
 			dset_str = dataname
-		plt.text( 1, 1, dset_str, va='bottom', ha='right', transform=ax.transAxes, fontsize=plot_props['text_size'] )
+		plt.text( 0.5, 1.1, dset_str, va='bottom', ha='center', transform=ax.transAxes, fontsize=plot_props['text_size'] )
 
 		#regime arrows
 
 		if grid_pos == 0:
 			txt_str = 'Lévy walk regime\n'+r'$W_{\mathrm{levy}} \gg 0$'
-			plt.text( 0.9, -0.5, txt_str, va='center', ha='center', transform=ax.transAxes, fontsize=plot_props['xylabel'], weight='bold', zorder=1 )
-			plt.annotate( text='', xy=( 1.05, -0.25 ), xytext=( 0.55, -0.8 ), arrowprops=dict( headlength=12, headwidth=10, width=5, color=colors[0], alpha=0.5 ), xycoords=ax.transAxes, textcoords=ax.transAxes, zorder=0 )
+			plt.text( 0.5, 1.6, txt_str, va='center', ha='center', transform=ax.transAxes, fontsize=plot_props['xylabel'], weight='bold', zorder=1 )
+			plt.annotate( text='', xy=( 0.5, 1.9 ), xytext=( 0.5, 4 ), arrowprops=dict( headlength=12, headwidth=10, width=5, color=colors[0], alpha=0.5 ), xycoords=ax.transAxes, textcoords=ax.transAxes, zorder=0 )
 
-		if grid_pos == 2:
+		if grid_pos == 1:
 			txt_str = 'diffusion regime\n'+r'$W_{\mathrm{diff}} \gg 0$'
-			plt.text( -0.7, -1.1, txt_str, va='center', ha='center', transform=ax.transAxes, fontsize=plot_props['xylabel'], weight='bold', zorder=1 )
-			plt.annotate( text='', xy=( -0.15, -0.1 ), xytext=( -0.9, -1.4 ), arrowprops=dict( headlength=12, headwidth=10, width=5, color=colors[1], alpha=0.5 ), xycoords=ax.transAxes, textcoords=ax.transAxes, zorder=0 )
+			plt.text( 1.1, 1.6, txt_str, va='center', ha='center', transform=ax.transAxes, fontsize=plot_props['xylabel'], weight='bold', zorder=1 )
+			plt.annotate( text='', xy=( 1.1, 1.9 ), xytext=( 0.5, 2.5 ), arrowprops=dict( headlength=12, headwidth=10, width=5, color=colors[1], alpha=0.5 ), xycoords=ax.transAxes, textcoords=ax.transAxes, zorder=0 )
 
-		if grid_pos == 4:
+		if grid_pos == 3:
 			txt_str = 'replacement\nregime\n'+r'$W_{\mathrm{repl}} \gg 0$'
-			plt.text( -0.36, 0.38, txt_str, va='center', ha='center', transform=ax.transAxes, fontsize=plot_props['xylabel'], weight='bold', zorder=1 )
-			plt.annotate( text='', xy=( -0.18, 0.4 ), xytext=( -0.5, 0.4 ), arrowprops=dict( headlength=12, headwidth=10, width=5, color=colors[2], alpha=0.5 ), xycoords=ax.transAxes, textcoords=ax.transAxes, zorder=0 )
+			plt.text( 0, 1.6, txt_str, va='center', ha='center', transform=ax.transAxes, fontsize=plot_props['xylabel'], weight='bold', zorder=1 )
+			plt.annotate( text='', xy=( -0.25, 1.9 ), xytext=( -0.5, 2.2 ), arrowprops=dict( headlength=12, headwidth=10, width=5, color=colors[2], alpha=0.5 ), xycoords=ax.transAxes, textcoords=ax.transAxes, zorder=0 )
 
 		#legends
 
-		bboxes = { 0 : (0.7, 0.5), 2 : (0.28, 0.5) }
-		if grid_pos in [ 0, 2 ]:
-			plt.legend( loc='center right', bbox_to_anchor=bboxes[ grid_pos ], prop=plot_props['legend_prop'], handlelength=plot_props['legend_hlen'], numpoints=plot_props['legend_np'], columnspacing=plot_props['legend_colsp'] )
+		if grid_pos == 0:
+			leg1 = plt.legend( loc='center right', bbox_to_anchor=(0.7, 0.5), prop=plot_props['legend_prop'], handlelength=plot_props['legend_hlen'], numpoints=plot_props['legend_np'], columnspacing=plot_props['legend_colsp'] )
+			ax.add_artist(leg1)
 
-		bboxes = { 1 : (-0.12, 0.5), 3 : (1.02, 1.7) }
-		if grid_pos in [ 1, 3 ]:
-			plt.legend( ( handle_data, handle_model, handle_param ), ( 'data', 'model', r'$\nu_r$' ), loc='center right', bbox_to_anchor=bboxes[ grid_pos ], prop=plot_props['legend_prop'], handlelength=1.7, numpoints=plot_props['legend_np'], columnspacing=plot_props['legend_colsp'] )
+			leg2 = plt.legend( ( handle_data, handle_model, handle_param ), ( 'data', 'model', r'$\nu_r$' ), loc='center right', bbox_to_anchor=(1.1, 0.5), prop=plot_props['legend_prop'], handlelength=1.7, numpoints=plot_props['legend_np'], columnspacing=plot_props['legend_colsp'] )
+			ax.add_artist(leg2)
 
-		if grid_pos == 4:
+		if grid_pos == 3:
 			plot_str = r'$\tau =$ '+'{}'.format( ptau )+'\n'+r'$\nu =$ '+'{}'.format( pnu )+'\n'+r'$p =$ '+'{}'.format( p0 )
 			plt.text( 0.1, 0.5, plot_str, va='center', ha='left', transform=ax.transAxes, fontsize=plot_props['legend_prop']['size'])
 
@@ -329,9 +431,7 @@ if __name__ == "__main__":
 		plt.axis([ 1e-3, 1e-0, 0, 1 ])
 		ax.tick_params( axis='x', which='major', direction='in', labelsize=plot_props['ticklabel'], length=2, pad=3 )
 		ax.tick_params( axis='y', which='major', direction='in', labelsize=plot_props['ticklabel'], length=2, pad=2 )
-		if grid_pos == 2:
-			plt.xticks([])
-		if grid_pos == 1:
+		if grid_pos:
 			plt.yticks([])
 		ax.locator_params( axis='y', nbins=3 ) #change number of ticks in axes
 		plt.minorticks_off()
@@ -341,20 +441,3 @@ if __name__ == "__main__":
 	if fig_props['savename'] != '':
 		plt.savefig( fig_props['savename']+'.pdf', format='pdf', dpi=fig_props['dpi'] )
 #		plt.savefig( fig_props['savename']+'.png', format='png', dpi=fig_props['dpi'] )
-
-
-#DEBUGGIN'
-
-#		plt.semilogx( pnu_resc_vals, W_repl, label='W_repl', lw=plot_props['linewidth'] )
-#		plt.semilogx( pnu_resc_vals, W_repl + W_diff, label='W_repl + W_diff', lw=plot_props['linewidth'] )
-#		plt.semilogx( pnu_resc_vals, W_repl + W_diff + W_levi, label='W_repl + W_diff + W_levi', lw=plot_props['linewidth'] )
-
-#	#initialise labels container
-#	labels = pd.DataFrame( np.zeros(( len( sel_datasets ), 3 )), index=pd.Series( range(len(sel_datasets)), name='label_num' ), columns=pd.Series( [ 'dataname', 'ptau_resc', 'label_txt' ], name='labels' ) ).astype( { 'dataname' : str, 'ptau_resc' : float, 'label_txt' : str } )
-
-#		#save labels & sort at the end
-#		labels.iloc[ dset_pos ] = dataname, ptau_resc, datasets[ dataname ]
-#		if dset_pos == len( sel_datasets ) - 1:
-#			labels_sorted = labels.sort_values( by=['ptau_resc'], ascending=False ).reset_index( drop=True ) #sort by decreasing rescaled ptau and reindex
-
-#		plt.text( pnu_resc, ptau_resc, datasets_oneliners[ dataname ], va='center', ha='left', fontsize=plot_props['ticklabel'] )
