@@ -474,13 +474,13 @@ if __name__ == "__main__":
 			  sc.Text( 'c', 3, 175, size=plot_props['figlabel']-5, weight='bold' ),
 			  sc.Text( 'd', 290, 175, size=plot_props['figlabel']-5, weight='bold' )
 #			  sc.Text( 'e', 590, 175, size=plot_props['figlabel']-5, weight='bold' )
-		).scale( 1.335 ),
+		).scale( 0.0354 ),
 
 		sc.Panel( sc.SVG( svg_props['added_file']+'.svg' ),
 			  sc.Text( 'a', 3, 18, size=plot_props['figlabel'], weight='bold' )
-		).scale( 1.05 ),
+		).scale( 0.0278 ),
 
-#		sc.Grid( 20, 20 )
+		# sc.Grid( 20, 20 )
 
 		).save( svg_props['savename']+'.svg' )
 

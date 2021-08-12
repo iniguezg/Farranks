@@ -21,10 +21,10 @@ if __name__ == "__main__":
 #	gof_str = 'MSE' #Goodness-of-fit measure. Default: Mean Squared Error (MSE)
 
 	#flags and locations
-	loadflag = 'n'
+	loadflag = 'y'
 	root_loc = expanduser('~') + '/prg/xocial/Farranks/' #root location
 	saveloc_data = root_loc+'nullModel/v4/files/' #location of output files
-	saveloc_mle = root_loc+'nullModel/v4/files/params/params_mle/'
+	# saveloc_mle = root_loc+'nullModel/v4/files/params/params_mle/'
 	# saveloc_data = '/m/cs/scratch/networks/inigueg1/prg/xocial/Farranks/nullModel/v4/files/'
 
 	#datasets to explore
@@ -33,7 +33,7 @@ if __name__ == "__main__":
 #	datasets = [ 'enron-sent-mails-weekly', 'Football_FIFA', 'Football_Scorers', 'Fortune', 'Hienas', 'metroMex', 'Nascar_BuschGrandNational', 'Nascar_WinstonCupGrandNational', 'UndergroundByWeek' ]
 #	datasets = [ 'VideogameEarnings', 'Virus' ] #shady data
 
-	datatypes = { 'AcademicRanking' : 'open', 'AtlasComplex' : 'open', 'Citations' : 'open', 'Cities_RU' : 'open', 'Cities_UK' : 'closed', 'Earthquakes_avgMagnitude' : 'closed', 'Earthquakes_numberQuakes' : 'closed', 'english' : 'open', 'enron-sent-mails-weekly' : 'open', 'FIDEFemale' : 'open', 'FIDEMale' : 'open', 'Football_FIFA' : 'open', 'Football_Scorers' : 'open', 'Fortune' : 'open', 'french' : 'open', 'german' : 'open', 'github-watch-weekly' : 'open', 'Golf_OWGR' : 'open', 'Hienas' : 'open', 'italian' : 'open', 'metroMex' : 'closed', 'Nascar_BuschGrandNational' : 'open', 'Nascar_WinstonCupGrandNational' : 'open', 'Poker_GPI' : 'open', 'russian' : 'open', 'spanish' : 'open','Tennis_ATP' : 'open', 'TheGuardian_avgRecommends' : 'open', 'TheGuardian_numberComments' : 'open', 'UndergroundByWeek' : 'closed' } #type dict
+	datatypes = { 'AcademicRanking' : 'open', 'AtlasComplex' : 'open', 'Citations' : 'open', 'Cities_RU' : 'open', 'Cities_UK' : 'closed', 'Earthquakes_avgMagnitude' : 'closed', 'Earthquakes_numberQuakes' : 'closed', 'english' : 'open', 'enron-sent-mails-weekly' : 'open', 'FIDEFemale' : 'open', 'FIDEMale' : 'open', 'Football_FIFA' : 'closed', 'Football_Scorers' : 'open', 'Fortune' : 'open', 'french' : 'open', 'german' : 'open', 'github-watch-weekly' : 'open', 'Golf_OWGR' : 'open', 'Hienas' : 'open', 'italian' : 'open', 'metroMex' : 'closed', 'Nascar_BuschGrandNational' : 'open', 'Nascar_WinstonCupGrandNational' : 'open', 'Poker_GPI' : 'open', 'russian' : 'open', 'spanish' : 'open','Tennis_ATP' : 'open', 'TheGuardian_avgRecommends' : 'open', 'TheGuardian_numberComments' : 'open', 'UndergroundByWeek' : 'closed' } #type dict
 #	datasets = { 'VideogameEarnings' : 'open', 'Virus' : 'open' } #shady data
 
 	for dataname in datasets: #loop through considered datasets
@@ -59,20 +59,20 @@ if __name__ == "__main__":
 		# params_model = data_misc.data_estimate_params_theo( dataname, params, loadflag, saveloc_data, gof_str=gof_str, datatype=datatype )
 
 
-		# ## analysis 3: get optimal parameters for dataset (all parameters at same time) ##
+		## analysis 3: get optimal parameters for dataset (all parameters at same time) ##
+
+		params_model = data_misc.data_estimate_params_all( dataname, params, loadflag, saveloc_data, datatype=datatype )
+		print( params_model )
+
+
+		# ## analysis 4: get optimal parameters for dataset (maximum likelihood estimation) ##
 		#
-		# params_model = data_misc.data_estimate_params_all( dataname, params, loadflag, saveloc_data, datatype=datatype )
-		# print( params_model )
-
-
-		## analysis 4: get optimal parameters for dataset (maximum likelihood estimation) ##
-
-		#do simple fitting first
-		params_model = data_misc.data_estimate_params_all( dataname, params, 'y', saveloc_data, datatype=datatype )
-		#do MLE fitting
-		params_model_mle = data_misc.data_estimate_params_MLE( dataname, params, loadflag, saveloc_data, datatype=datatype, sample_frac=0.1 )
-		#print status
-		print( '\tBASIC: pnu = {},\tptau = {}\n\tMLE: pnu = {},\tptau = {}\n'.format( params_model.loc['optimal', 'pnu'], params_model.loc['optimal', 'ptau'], params_model_mle.loc['optimal', 'pnu'], params_model_mle.loc['optimal', 'ptau'] ) )
+		# #do simple fitting first
+		# params_model = data_misc.data_estimate_params_all( dataname, params, 'y', saveloc_data, datatype=datatype )
+		# #do MLE fitting
+		# params_model_mle = data_misc.data_estimate_params_MLE( dataname, params, loadflag, saveloc_data, datatype=datatype, sample_frac=0.1 )
+		# #print status
+		# print( '\tBASIC: pnu = {},\tptau = {}\n\tMLE: pnu = {},\tptau = {}\n'.format( params_model.loc['optimal', 'pnu'], params_model.loc['optimal', 'ptau'], params_model_mle.loc['optimal', 'pnu'], params_model_mle.loc['optimal', 'ptau'] ) )
 
 
 		# ## analysis 5: get optimal parameters for samples of dataset (all parameters at same time)
