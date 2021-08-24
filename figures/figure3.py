@@ -198,9 +198,10 @@ if __name__ == "__main__":
 	ax = plt.subplot( subgrid[ 0, : ] )
 	sns.despine( ax=ax ) #take out top and right spines
 	plt.xlabel( r'$k$', size=plot_props['xylabel'], labelpad=-3 )
-	plt.ylabel( r'$\nu / k \ell$', size=plot_props['xylabel'], labelpad=0 )
+	ylabel_str = r'$\nu / k \ell$'+'\n(days$^{-1}$)'
+	plt.ylabel( ylabel_str, size=plot_props['xylabel'], labelpad=0 )
 
-	plt.text( -0.2, 0.8, 'b', va='bottom', ha='right', transform=ax.transAxes, fontsize=plot_props['figlabel'], weight='bold' )
+	plt.text( -0.35, 0.8, 'b', va='bottom', ha='right', transform=ax.transAxes, fontsize=plot_props['figlabel'], weight='bold' )
 
 	for type in [ 'society', 'languages', 'economics', 'infrastructure', 'nature', 'sports' ]: #loop through types (ordered like Table S1)
 		sel_datasets = [ dataname for dataname in systems[ type ] if datasets_openclosed[ dataname ] == 'open' ] #consider only open datasets
