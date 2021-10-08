@@ -516,6 +516,36 @@ def estimate_params_all( dataname, params, saveloc, prop_dict=None, datatype='op
 	return flux_f, open_deriv_f, success_f, p0_f, ptau_star, pnu_star
 
 
+#function to estimate system size in model that leads to number of elements ever in ranking in data
+def estimate_params_size( dataname, params, loadflag, saveloc ):
+	"""Estimate system size in model that leads to number of elements ever in ranking in data"""
+
+	param_str = dataname+'.pkl' #filename for output files
+
+	if loadflag == 'y': #load files
+		params_size = np.load( saveloc + 'params_size_' + param_str )
+
+	elif loadflag == 'n': #or else, compute sizes
+
+		params_model = pd.read_pickle( saveloc + 'params_model_' + param_str ) #fitted parameters of dataset
+
+		#set params for each bootstrap realisation
+		params_rel = { 'N0':params['N0'], 'T':params['T'], 'ptau':params_model.loc['optimal', 'ptau'], 'pnu':params_model.loc['optimal', 'pnu'] }
+
+		#set minimization functions
+		params_func = lambda N : { **params_rel, 'N':int(np.round( N )) } #update estimated size in dict
+		size_func = lambda N : np.array([ model_misc.null_model( params_func(N) )[2]['N'] for i in range(params['ntimes']) ]).mean() #get avg no. of elements ever in ranking (in simulations)
+		min_func = lambda N : np.abs( size_func(N) - params['N'] ) #minimize w/ observed value in data
+
+		#estimate system size from simulations
+		size_res = spo.minimize_scalar( min_func, bounds=(params['N0'], params['N']), method='bounded', options={'disp':3} )
+		params_size = int(np.round( size_res.x ))
+
+		np.save( saveloc + 'params_size_' + param_str, params_size ) #save to file
+
+	return params_size
+
+
 #function to get optimal model parameters from mle properties (maximum likelihood estimation)
 def estimate_params_MLE( dataname, params, saveloc, prop_dict=None, datatype='open', sample_frac=False ):
 	"""Get optimal model parameters from mle properties (maximum likelihood estimation)"""

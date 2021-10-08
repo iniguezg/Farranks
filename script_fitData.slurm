@@ -2,6 +2,12 @@
 
 module load anaconda
 
+# for dataname in AcademicRanking AtlasComplex Citations Cities_RU Cities_UK Earthquakes_avgMagnitude Earthquakes_numberQuakes english enron-sent-mails-weekly FIDEFemale FIDEMale Football_FIFA Football_Scorers Fortune french german github-watch-weekly Golf_OWGR Hienas italian metroMex Nascar_BuschGrandNational Nascar_WinstonCupGrandNational Poker_GPI russian spanish Tennis_ATP TheGuardian_avgRecommends TheGuardian_numberComments UndergroundByWeek
+for dataname in AcademicRanking
+do
+	sbatch -J $dataname -o $dataname.out script_fitData.sh $dataname
+done
+
 # sbatch -J Citations -o Citations.out script_fitData.sh Citations
 #
 # sbatch -J english -o english.out script_fitData.sh english
@@ -14,8 +20,8 @@ module load anaconda
 #
 # sbatch -J german -o german.out script_fitData.sh german
 #
-sbatch -J github-watch-weekly -o github-watch-weekly.out script_fitData.sh github-watch-weekly
-# 
+# sbatch -J github-watch-weekly -o github-watch-weekly.out script_fitData.sh github-watch-weekly
+#
 # sbatch -J Golf_OWGR -o Golf_OWGR.out script_fitData.sh Golf_OWGR
 #
 # sbatch -J Hienas -o Hienas.out script_fitData.sh Hienas
