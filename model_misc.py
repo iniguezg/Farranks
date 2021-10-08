@@ -534,7 +534,7 @@ def estimate_params_size( dataname, params, loadflag, saveloc ):
 
 		#set minimization functions
 		params_func = lambda N : { **params_rel, 'N':int(np.round( N )) } #update estimated size in dict
-		size_func = lambda N : np.array([ model_misc.null_model( params_func(N) )[2]['N'] for i in range(params['ntimes']) ]).mean() #get avg no. of elements ever in ranking (in simulations)
+		size_func = lambda N : np.array([ null_model( params_func(N) )[2]['N'] for i in range(params['ntimes']) ]).mean() #get avg no. of elements ever in ranking (in simulations)
 		min_func = lambda N : np.abs( size_func(N) - params['N'] ) #minimize w/ observed value in data
 
 		#estimate system size from simulations
