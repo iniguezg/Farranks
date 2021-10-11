@@ -2,8 +2,8 @@
 
 module load anaconda
 
-for dataname in AcademicRanking Citations Cities_RU english enron-sent-mails-weekly FIDEFemale FIDEMale Football_Scorers Fortune french german github-watch-weekly Golf_OWGR Hienas italian Nascar_BuschGrandNational Nascar_WinstonCupGrandNational Poker_GPI russian spanish Tennis_ATP TheGuardian_avgRecommends TheGuardian_numberComments
-# for dataname in AtlasComplex
+# for dataname in AcademicRanking AtlasComplex Citations Cities_RU english enron-sent-mails-weekly FIDEFemale FIDEMale Football_Scorers Fortune french german github-watch-weekly Golf_OWGR Hienas italian Nascar_BuschGrandNational Nascar_WinstonCupGrandNational Poker_GPI russian spanish Tennis_ATP TheGuardian_avgRecommends TheGuardian_numberComments
+for dataname in english french german github-watch-weekly italian russian spanish
 do
 	sbatch -J $dataname -o $dataname.out script_fitData.sh $dataname
 done
