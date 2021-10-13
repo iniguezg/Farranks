@@ -84,11 +84,26 @@ if __name__ == "__main__":
 		# print(params_model)
 
 
-	## analysis 6: estimate system size in model that leads to number of elements ever in ranking in data
+	# ## analysis 6: estimate system size in model that leads to number of elements ever in ranking in data
+	#
+	# # ntimes = 2500 #number of realisations (for bootstrapping)
+	# # ntimes = 100
+	# ntimes = 10
+	# dataname = sys.argv[1] #considered dataset
+	# print( 'dataset name: ' + dataname ) #print dataset
+	#
+	# #get parameters for all datasets and selected dataset
+	# params_data = pd.read_pickle( saveloc_data+'params_data.pkl' )
+	# params = params_data.loc[ dataname ]
+	# params['ntimes'] = ntimes
+	#
+	# params_size = model_misc.estimate_params_size( dataname, params, loadflag, saveloc_data )
+	# print( 'N_est = {}'.format(params_size), flush=True )
 
-	# ntimes = 2500 #number of realisations (for bootstrapping)
-	# ntimes = 100
-	ntimes = 10
+
+	## analysis 7: estimate parameter deviations for dataset (all parameters at same time)
+
+	ntimes = 2500 #number of realisations (for bootstrap sampling)
 	dataname = sys.argv[1] #considered dataset
 	print( 'dataset name: ' + dataname ) #print dataset
 
@@ -96,25 +111,10 @@ if __name__ == "__main__":
 	params_data = pd.read_pickle( saveloc_data+'params_data.pkl' )
 	params = params_data.loc[ dataname ]
 	params['ntimes'] = ntimes
+	datatype = datatypes[ dataname ] #dataset type: open, closed
 
-	params_size = model_misc.estimate_params_size( dataname, params, loadflag, saveloc_data )
-	print( 'N_est = {}'.format(params_size), flush=True )
-
-
-	# ## analysis 7: estimate parameter deviations for dataset (all parameters at same time)
-	#
-	# ntimes = 2500 #number of realisations (for bootstrap sampling)
-	# dataname = sys.argv[1] #considered dataset
-	# print( 'dataset name: ' + dataname ) #print dataset
-	#
-	# #get parameters for all datasets and selected dataset
-	# params_data = pd.read_pickle( saveloc_data+'params_data.pkl' )
-	# params = dict( params_data.loc[ dataname ] ) #(dict to have ints and floats!)
-	# params['ntimes'] = ntimes
-	# datatype = datatypes[ dataname ] #dataset type: open, closed
-	#
-	# params_devs = data_misc.data_estimate_params_devs( dataname, params, loadflag, saveloc_data, datatype=datatype )
-	# print( params_devs, flush=True )
+	params_devs = data_misc.data_estimate_params_devs( dataname, params, loadflag, saveloc_data, datatype=datatype )
+	print( params_devs, flush=True )
 
 
 #DEBUGGIN'

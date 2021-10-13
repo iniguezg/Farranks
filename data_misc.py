@@ -544,9 +544,12 @@ def data_estimate_params_devs( dataname, params, loadflag, saveloc, datatype='op
 		params_rel = { 'N':params['N'], 'N0':params['N0'], 'T':params['T'], 'ptau':params_model.loc['optimal', 'ptau'], 'pnu':params_model.loc['optimal', 'pnu'], 'ntimes':1 } #parameters to run model
 		print( '\tN = {}'.format( params_rel['N'] ), flush=True )
 
-		#estimate system size from rank openness in model (theo) and use as guess for N
-		N_est_theo = model_misc.N_est_theo( params_rel )
+		#estimate system size from bootstrapped realisations of model and use as guess for N
+		N_est_theo = model_misc.estimate_params_size( dataname, params, 'y', saveloc )
 		print( '\tN_est_theo = {}'.format( N_est_theo ), flush=True )
+
+		#approx guess from theory: estimate system size from rank openness in model
+		print( '\t(approx guess from theory = {})'.format( model_misc.N_est_theo( params_rel ) ), flush=True )
 
 		#initialise dataframe of parameters in bootstrapped model (to compute deviations)
 		params_devs = pd.DataFrame( np.zeros( ( ntimes, 6 ) ), index=pd.Series( range(ntimes), name='realisation'), columns=pd.Series( [ 'flux', 'open_deriv', 'success', 'p0', 'ptau', 'pnu' ], name='parameter' ) )
