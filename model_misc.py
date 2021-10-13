@@ -523,7 +523,7 @@ def estimate_params_size( dataname, params, loadflag, saveloc ):
 	param_str = dataname #filename for output files
 
 	if loadflag == 'y': #load files
-		params_size = np.load( saveloc + 'params_size_' + param_str + '.npy' )
+		params_size = int( np.load( saveloc + 'params_size_' + param_str + '.npy' ) )
 
 	elif loadflag == 'n': #or else, compute sizes
 
