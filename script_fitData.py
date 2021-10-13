@@ -87,7 +87,8 @@ if __name__ == "__main__":
 	## analysis 6: estimate system size in model that leads to number of elements ever in ranking in data
 
 	# ntimes = 2500 #number of realisations (for bootstrapping)
-	ntimes = 100
+	# ntimes = 100
+	ntimes = 10
 	dataname = sys.argv[1] #considered dataset
 	print( 'dataset name: ' + dataname ) #print dataset
 
