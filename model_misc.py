@@ -520,10 +520,10 @@ def estimate_params_all( dataname, params, saveloc, prop_dict=None, datatype='op
 def estimate_params_size( dataname, params, loadflag, saveloc ):
 	"""Estimate system size in model that leads to number of elements ever in ranking in data"""
 
-	param_str = dataname+'.pkl' #filename for output files
+	param_str = dataname #filename for output files
 
 	if loadflag == 'y': #load files
-		params_size = np.load( saveloc + 'params_size_' + param_str )
+		params_size = np.load( saveloc + 'params_size_' + param_str + '.npy' )
 
 	elif loadflag == 'n': #or else, compute sizes
 
