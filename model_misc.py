@@ -520,14 +520,12 @@ def estimate_params_all( dataname, params, saveloc, prop_dict=None, datatype='op
 def estimate_params_size( dataname, params, loadflag, saveloc ):
 	"""Estimate system size in model that leads to number of elements ever in ranking in data"""
 
-	param_str = dataname #filename for output files
-
 	if loadflag == 'y': #load files
-		params_size = int( np.load( saveloc + 'params_size_' + param_str + '.npy' ) )
+		params_size = int( np.load( saveloc + 'params_size_' + dataname + '.npy' ) )
 
 	elif loadflag == 'n': #or else, compute sizes
 
-		params_model = pd.read_pickle( saveloc + 'params_model_' + param_str ) #fitted parameters of dataset
+		params_model = pd.read_pickle( saveloc + 'params_model_' + dataname + '.pkl' ) #fitted parameters of dataset
 
 		#set params for each bootstrap realisation
 		params_rel = { 'N0':params['N0'], 'T':params['T'], 'ptau':params_model.loc['optimal', 'ptau'], 'pnu':params_model.loc['optimal', 'pnu'] }
@@ -541,7 +539,7 @@ def estimate_params_size( dataname, params, loadflag, saveloc ):
 		size_res = spo.minimize_scalar( min_func, bounds=(params['N0'], params['N']), method='bounded', options={'disp':3} )
 		params_size = int(np.round( size_res.x ))
 
-		np.save( saveloc + 'params_size_' + param_str, params_size ) #save to file
+		np.save( saveloc + 'params_size_' + dataname, params_size ) #save to file
 
 	return params_size
 
