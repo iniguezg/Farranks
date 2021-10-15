@@ -63,8 +63,6 @@ if __name__ == "__main__":
 	'dpi' : 300,
 	'savename' : 'figure_supp_deviations' }
 
-	colors = sns.color_palette( 'GnBu', n_colors=3 )
-
 
 	## DATA ##
 
@@ -149,24 +147,24 @@ if __name__ == "__main__":
 		#plot plot!
 
 		#fitted parameters for data
-		plt.axvline( x=0, ls='--', c='0.5', lw=plot_props['linewidth'], zorder=1 )
+		plt.axhline( ls='--', c='0.5', lw=plot_props['linewidth'], zorder=1 )
+		plt.axvline( ls='--', c='0.5', lw=plot_props['linewidth'], zorder=1 )
 
 		#KDE/mean of bootstrapped model
 
-		pnu_frac_devs = ( ( params_devs['pnu'] - pnu ) / pnu ).rename('pnu_frac')
-		ptau_frac_devs = ( ( params_devs['ptau'] - ptau ) / ptau ).rename('ptau_frac')
-		p0_frac_devs = ( ( params_devs['p0'] - p0 ) / p0 ).rename('p0_frac')
-		data = pd.concat( [ pnu_frac_devs, ptau_frac_devs, p0_frac_devs ], axis=1 )
+		xplot = ( ( params_devs['pnu'] - pnu ) / pnu ).rename('pnu_frac')
+		yplot = ( ( params_devs['ptau'] - ptau ) / ptau ).rename('ptau_frac')
+		xyplot = pd.concat( [ xplot, yplot ], axis=1 )
 
-		sns.kdeplot( data=data, x='pnu_frac', ax=ax, fill=True, color=colors[0], zorder=0 )
-		sns.kdeplot( data=data, x='ptau_frac', ax=ax, fill=True, color=colors[1], zorder=0 )
-		sns.kdeplot( data=data, x='p0_frac', ax=ax, fill=True, color=colors[2], zorder=0 )
+		plt.plot( xplot.mean(), yplot.mean(), 'x', c='r', ms=plot_props['marker_size'], zorder=1 )
+		if dataname != 'spanish':
+			sns.kdeplot( data=xyplot, x='pnu_frac', y='ptau_frac', ax=ax, fill=True, palette='GnBu', levels=np.linspace(0.1, 1., 10), zorder=0 )
 
 		#texts
 		plt.text( 0.5, 1.25, datasets[ dataname ], va='center', ha='center', transform=ax.transAxes, fontsize=plot_props['ticklabel'] )
 
-		# pvalue_str = '$\Lambda =$ {:.2f} $\pm$ {:.2f}'.format( pvalue, perror )
-		# plt.text( 0.02, 0.99, pvalue_str, va='top', ha='left', transform=ax.transAxes, fontsize=plot_props['text_size'])
+		pvalue_str = '$\Lambda =$ {:.2f} $\pm$ {:.2f}'.format( pvalue, perror )
+		plt.text( 0.02, 0.99, pvalue_str, va='top', ha='left', transform=ax.transAxes, fontsize=plot_props['text_size'])
 
 		if grid_pos == 0:
 			plt.text( -0.68, 0.5, 'open', va='center', ha='center', transform=ax.transAxes, weight='bold', rotation='vertical', fontsize=plot_props['xylabel'] )
@@ -174,20 +172,20 @@ if __name__ == "__main__":
 
 		#finalise subplot
 		if grid_pos in [ 18, 19, 20, 21, 22, 23 ]:
-			plt.xlabel( r'$\Delta \bullet$', size=plot_props['xylabel'], labelpad=2 )
+			plt.xlabel( r'$\Delta \nu$', size=plot_props['xylabel'], labelpad=2 )
 		else:
 			plt.xlabel('')
 		if grid_pos in [ 0, 6, 12, 18 ]:
-			plt.ylabel( r'$P(\Delta \bullet)$', size=plot_props['xylabel'], labelpad=2 )
+			plt.ylabel( r'$\Delta \tau$', size=plot_props['xylabel'], labelpad=2 )
 		else:
 			plt.ylabel('')
-		# plt.axis([ -0.5, 0.6, -0.7, 0.5 ])
+		plt.axis([ -0.5, 0.6, -0.7, 0.5 ])
 		ax.locator_params( axis='both', nbins=3 )
 		ax.tick_params( axis='both', which='major', labelsize=plot_props['ticklabel'], pad=2 )
-		# if grid_pos not in [ 18, 19, 20, 21, 22, 23 ]:
-		# 	plt.xticks([])
-		# if grid_pos not in [ 0, 6, 12, 18 ]:
-		# 	plt.yticks([])
+		if grid_pos not in [ 18, 19, 20, 21, 22, 23 ]:
+			plt.xticks([])
+		if grid_pos not in [ 0, 6, 12, 18 ]:
+			plt.yticks([])
 
 	#finalise plot
 	if fig_props['savename'] != '':
