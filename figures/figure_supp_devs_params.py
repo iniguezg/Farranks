@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-### SCRIPT FOR PLOTTING SUPP FIGURE (DEVIATIONS) IN FARRANKS PROJECT ###
+### SCRIPT FOR PLOTTING SUPP FIGURE (DEVIATIONS IN PARAMETERS) IN FARRANKS PROJECT ###
 
 #import modules
 import os, sys
@@ -61,7 +61,7 @@ if __name__ == "__main__":
 	'aspect_ratio' : (4, 6),
 	'grid_params' : dict( left=0.09, bottom=0.08, right=0.995, top=0.9, wspace=0.3, hspace=0.8 ),
 	'dpi' : 300,
-	'savename' : 'figure_supp_deviations' }
+	'savename' : 'figure_supp_devs_params' }
 
 	colors = sns.color_palette( 'Paired', n_colors=3 )
 
@@ -103,7 +103,7 @@ if __name__ == "__main__":
 # A: Fractional variations in fitted parameters of bootstrapped model
 
 	# sel_datasets = [ dataname for dataname in fluxmean_data.index if datasets_openclosed[ dataname ] == 'open' ]
-	sel_datasets = [ 'AcademicRanking', 'AtlasComplex', 'Citations', 'Cities_RU', 'english', 'FIDEFemale', 'FIDEMale', 'Football_Scorers', 'Fortune', 'Golf_OWGR', 'Hienas', 'Nascar_BuschGrandNational', 'Nascar_WinstonCupGrandNational', 'Poker_GPI', 'Tennis_ATP', 'TheGuardian_numberComments', 'enron-sent-mails-weekly' ]
+	sel_datasets = [ 'AcademicRanking', 'AtlasComplex', 'Citations', 'Cities_RU', 'english', 'FIDEFemale', 'FIDEMale', 'Football_Scorers', 'Fortune', 'github-watch-weekly', 'Golf_OWGR', 'Hienas', 'Nascar_BuschGrandNational', 'Nascar_WinstonCupGrandNational', 'Poker_GPI', 'Tennis_ATP', 'TheGuardian_avgRecommends', 'TheGuardian_numberComments', 'enron-sent-mails-weekly' ]
 
 	for grid_pos, dataname in enumerate( sel_datasets ): #loop through (open!) datasets (in order by decreasing mean flux)
 		print( 'flux = {:.2f}, dataset = {}'.format( fluxmean_data[ dataname ], dataname ) ) #to know where we stand
