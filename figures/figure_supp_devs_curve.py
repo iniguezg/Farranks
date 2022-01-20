@@ -45,7 +45,7 @@ if __name__ == "__main__":
 	'ticklabel' : 13,
 	'text_size' : 10,
 	'marker_size' : 6,
-	'linewidth' : 1,
+	'linewidth' : 2,
 	'tickwidth' : 1,
 	'barwidth' : 0.8,
 	'legend_prop' : { 'size':10 },
@@ -59,11 +59,11 @@ if __name__ == "__main__":
 	fig_props = { 'fig_num' : 1,
 	'fig_size' : (10, 6),
 	'aspect_ratio' : (4, 6),
-	'grid_params' : dict( left=0.09, bottom=0.08, right=0.995, top=0.9, wspace=0.3, hspace=0.8 ),
+	'grid_params' : dict( left=0.08, bottom=0.085, right=0.995, top=0.88, wspace=0.3, hspace=0.6 ),
 	'dpi' : 300,
 	'savename' : 'figure_supp_devs_curve' }
 
-	colors = sns.color_palette( 'Paired', n_colors=3 )
+	colors = sns.color_palette( 'Paired', n_colors=2 )
 
 
 	## DATA ##
@@ -102,8 +102,7 @@ if __name__ == "__main__":
 
 # A: Deviations in universal curve for bootstrapped model
 
-	# sel_datasets = [ dataname for dataname in fluxmean_data.index if datasets_openclosed[ dataname ] == 'open' ]
-	sel_datasets = [ 'AcademicRanking', 'AtlasComplex', 'Citations', 'Cities_RU', 'english', 'FIDEFemale', 'FIDEMale', 'Football_Scorers', 'Fortune', 'github-watch-weekly', 'Golf_OWGR', 'Hienas', 'Nascar_BuschGrandNational', 'Nascar_WinstonCupGrandNational', 'Poker_GPI', 'Tennis_ATP', 'TheGuardian_avgRecommends', 'TheGuardian_numberComments', 'enron-sent-mails-weekly' ]
+	sel_datasets = [ dataname for dataname in fluxmean_data.index if datasets_openclosed[ dataname ] == 'open' ]
 
 	for grid_pos, dataname in enumerate( sel_datasets ): #loop through (open!) datasets (in order by decreasing mean flux)
 		print( 'flux = {:.2f}, dataset = {}'.format( fluxmean_data[ dataname ], dataname ) ) #to know where we stand
@@ -136,51 +135,43 @@ if __name__ == "__main__":
 		#get rescaled model parameters (in bootstrapped samples of model)
 		pnu_resc_devs = ( ( params_devs.pnu - params_devs.p0 * params_devs.open_deriv ) / params_devs.open_deriv ).rename('pnu_resc')
 		ptau_resc_devs = ( params_devs.ptau / ( params_devs.p0 * (1 - params_devs.p0) * params_devs.open_deriv ) ).rename('ptau_resc')
-		params_resc_devs = pd.concat( [ pnu_resc_devs, ptau_resc_devs ], axis=1 ) #and join
 
 		#get distance from universal curve (in data/samples)
 		curve = pnu_resc * ptau_resc - 1
 		curve_devs = pnu_resc_devs * ptau_resc_devs - 1
 
+
 		#plot plot!
 
+		#distance from universal curve (in data/samples)
+		sns.histplot( x=curve_devs, label='sims', kde=True, ax=ax, element='step', color=colors[0], zorder=0 )
+		plt.axvline( x=curve, label=r'data', ls='-', c=colors[1], lw=plot_props['linewidth'], zorder=0 )
+
 		#reference value in universal curve
-		plt.axvline( x=0, ls='--', c='0.5', lw=plot_props['linewidth'], zorder=0 )
-
-		#distance from universal curve (in data/saamples)
-		plt.axvline( x=curve, label=r'data', ls='-', c='k', lw=plot_props['linewidth'], zorder=2 )
-		sns.kdeplot( x=curve_devs, label='bootstrap', ax=ax, fill=True, color=colors[0], zorder=1 )
-
-		#rescaled fitted parameters for data
-		# plt.loglog( pnu_resc, ptau_resc, 'o', label='data', c=datacols[datatypes[dataname]], ms=plot_props['marker_size'], zorder=2 )
-
-		# sns.kdeplot( data=params_resc_devs, x='pnu_resc', y='ptau_resc', ax=ax, log_scale=True, fill=True, palette='GnBu', levels=np.linspace(0.1, 1., 10), zorder=1 )
-
-		#universal curve in model
-		# plt.loglog( pnu_resc_vals, ptau_resc_vals, '--', c='0.5', lw=plot_props['linewidth'], label=r'$\tau_r \nu_r = 1$', zorder=0 )
+		plt.axvline( x=0, ls='--', c='0.5', lw=plot_props['linewidth'], zorder=1 )
 
 		#texts
-		plt.text( 0.5, 1, datasets[ dataname ], va='bottom', ha='center', transform=ax.transAxes, fontsize=plot_props['ticklabel'] )
+		plt.text( 0.5, 1.2, datasets[ dataname ], va='center', ha='center', transform=ax.transAxes, fontsize=plot_props['ticklabel'] )
 
 		#legend
 		if grid_pos == 0:
-			leg = plt.legend( loc='lower left', bbox_to_anchor=(3, 1.25), prop=plot_props['legend_prop'], handlelength=1.7, numpoints=plot_props['legend_np'], columnspacing=plot_props['legend_colsp'], ncol=2 )
+			leg = plt.legend( loc='lower left', bbox_to_anchor=(3.1, 1.45), prop=plot_props['legend_prop'], handlelength=1.7, numpoints=plot_props['legend_np'], columnspacing=plot_props['legend_colsp'], ncol=2 )
 
 		if grid_pos == 0:
-			plt.text( -0.68, 0.5, 'open', va='center', ha='center', transform=ax.transAxes, weight='bold', rotation='vertical', fontsize=plot_props['xylabel'] )
-			plt.annotate( text='', xy=( -0.68, -4.5 ), xytext=( -0.68, 0 ), arrowprops=dict(arrowstyle='<-', color='0.6'), xycoords=ax.transAxes, textcoords=ax.transAxes )
+			plt.text( -0.59, 0.5, 'open', va='center', ha='center', transform=ax.transAxes, weight='bold', rotation='vertical', fontsize=plot_props['xylabel'] )
+			plt.annotate( text='', xy=( -0.59, -4.5 ), xytext=( -0.59, 0 ), arrowprops=dict(arrowstyle='<-', color='0.6'), xycoords=ax.transAxes, textcoords=ax.transAxes )
 
 		#finalise subplot
-		# if grid_pos in [ 18, 19, 20, 21, 22, 23 ]:
-		if grid_pos in [ 12, 13, 14, 15, 16, 17 ]:
-			plt.xlabel( r'$\Delta \bullet$', size=plot_props['xylabel'], labelpad=2 )
+		if grid_pos in [ 18, 19, 20, 21, 22, 23 ]:
+			plt.xlabel( r'$\tau_r \nu_r - 1$', size=plot_props['xylabel'], labelpad=2 )
 		else:
 			plt.xlabel('')
+			plt.xticks([])
 		if grid_pos in [ 0, 6, 12, 18 ]:
-			plt.ylabel( r'$P(\Delta \bullet)$', size=plot_props['xylabel'], labelpad=2 )
+			plt.ylabel( r'count', size=plot_props['xylabel'], labelpad=2 )
 		else:
 			plt.ylabel('')
-		lim_val = np.abs( curve_devs ).max()
+		lim_val = 0.7
 		ax.set_xlim( -1.2*lim_val, 1.2*lim_val )
 		ax.locator_params( axis='both', nbins=3 )
 		ax.tick_params( axis='both', which='major', labelsize=plot_props['ticklabel'], pad=2 )
@@ -198,3 +189,23 @@ if __name__ == "__main__":
 		# #get fractional difference between rescaled parameters and reference values
 		# pnu_frac = ( pnu_resc - pnu_curve ) / pnu_curve
 		# ptau_frac = ( ptau_resc - ptau_curve ) / ptau_curve
+
+		# pnu_resc_devs = ( ( 2*pnu - params_devs.pnu.mean() - params_devs.p0 * params_devs.open_deriv ) / params_devs.open_deriv ).rename('pnu_resc')
+		# ptau_resc_devs = ( ( 2*ptau - params_devs.ptau.mean() ) / ( params_devs.p0 * (1 - params_devs.p0) * params_devs.open_deriv ) ).rename('ptau_resc')
+
+		# data = pd.concat( [ pnu_resc_devs, ptau_resc_devs ], axis=1 ) #and join
+
+		#rescaled fitted parameters for data
+		# plt.loglog( pnu_resc, ptau_resc, 'o', label='data', c=datacols[datatypes[dataname]], ms=plot_props['marker_size'], zorder=2 )
+
+		# sns.kdeplot( data=params_resc_devs, x='pnu_resc', y='ptau_resc', ax=ax, log_scale=True, fill=True, palette='GnBu', levels=np.linspace(0.1, 1., 10), zorder=1 )
+
+		#universal curve in model
+		# plt.loglog( pnu_resc_vals, ptau_resc_vals, '--', c='0.5', lw=plot_props['linewidth'], label=r'$\tau_r \nu_r = 1$', zorder=0 )
+
+		# lim_val = np.abs( curve_devs ).max()
+
+		# curve = pnu_resc - 1 / ptau_resc
+		# curve_devs = pnu_resc_devs - 1 / ptau_resc_devs
+		# curve = ptau_resc - 1 / pnu_resc
+		# curve_devs = ptau_resc_devs - 1 / pnu_resc_devs

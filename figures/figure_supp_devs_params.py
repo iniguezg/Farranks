@@ -45,7 +45,7 @@ if __name__ == "__main__":
 	'ticklabel' : 13,
 	'text_size' : 10,
 	'marker_size' : 6,
-	'linewidth' : 1,
+	'linewidth' : 2,
 	'tickwidth' : 1,
 	'barwidth' : 0.8,
 	'legend_prop' : { 'size':10 },
@@ -59,11 +59,11 @@ if __name__ == "__main__":
 	fig_props = { 'fig_num' : 1,
 	'fig_size' : (10, 6),
 	'aspect_ratio' : (4, 6),
-	'grid_params' : dict( left=0.09, bottom=0.08, right=0.995, top=0.9, wspace=0.3, hspace=0.8 ),
+	'grid_params' : dict( left=0.08, bottom=0.08, right=0.995, top=0.88, wspace=0.3, hspace=0.6 ),
 	'dpi' : 300,
 	'savename' : 'figure_supp_devs_params' }
 
-	colors = sns.color_palette( 'Paired', n_colors=3 )
+	colors = sns.color_palette( 'Set2', n_colors=3 )
 
 
 	## DATA ##
@@ -102,8 +102,7 @@ if __name__ == "__main__":
 
 # A: Fractional variations in fitted parameters of bootstrapped model
 
-	# sel_datasets = [ dataname for dataname in fluxmean_data.index if datasets_openclosed[ dataname ] == 'open' ]
-	sel_datasets = [ 'AcademicRanking', 'AtlasComplex', 'Citations', 'Cities_RU', 'english', 'FIDEFemale', 'FIDEMale', 'Football_Scorers', 'Fortune', 'github-watch-weekly', 'Golf_OWGR', 'Hienas', 'Nascar_BuschGrandNational', 'Nascar_WinstonCupGrandNational', 'Poker_GPI', 'Tennis_ATP', 'TheGuardian_avgRecommends', 'TheGuardian_numberComments', 'enron-sent-mails-weekly' ]
+	sel_datasets = [ dataname for dataname in fluxmean_data.index if datasets_openclosed[ dataname ] == 'open' ]
 
 	for grid_pos, dataname in enumerate( sel_datasets ): #loop through (open!) datasets (in order by decreasing mean flux)
 		print( 'flux = {:.2f}, dataset = {}'.format( fluxmean_data[ dataname ], dataname ) ) #to know where we stand
@@ -119,7 +118,6 @@ if __name__ == "__main__":
 		pnu = params_model.loc['optimal', 'pnu']
 		ptau = params_model.loc['optimal', 'ptau']
 		p0 = params_model.loc['optimal', 'p0']
-		open_deriv = params_model.loc['optimal', 'open_deriv']
 
 		#load parameters of bootstrapped samples of model
 		params_devs = pd.read_pickle( saveloc_data+'params_devs_'+dataname+'.pkl' )
@@ -129,18 +127,64 @@ if __name__ == "__main__":
 
 		#statistical significance of deviations
 
-		#rescale bootstrapped parameters relative to original values
-		pnu_frac_devs = ( ( params_devs.pnu - pnu ) / pnu ).rename('pnu_frac')
-		ptau_frac_devs = ( ( params_devs.ptau - ptau ) / ptau ).rename('ptau_frac')
-		p0_frac_devs = ( ( params_devs.p0 - p0 ) / p0 ).rename('p0_frac')
-		data = pd.concat( [ pnu_frac_devs, ptau_frac_devs, p0_frac_devs ], axis=1 )
+		#rescale bootstrapped parameters relative to original values (fit to data)
+		pnu_frac = ( params_devs.pnu - pnu ).rename('pnu_frac')
+		ptau_frac = ( params_devs.ptau - ptau ).rename('ptau_frac')
+		p0_frac = ( params_devs.p0 - p0 ).rename('p0_frac')
+		data = pd.concat( [ pnu_frac, ptau_frac, p0_frac ], axis=1 )
 
 		#correct model parameters with bootstrapped distribution
 
-		print( 'pnu, fitted = {:.4f}, corrected = {:.4f}'.format( pnu, 2*pnu - np.abs(params_devs.pnu.mean()) ) )
-		print( 'ptau, fitted = {:.4f}, corrected = {:.4f}'.format( ptau, 2*ptau - np.abs(params_devs.ptau.mean()) ) )
-		print( 'p0, fitted = {:.4f}, corrected = {:.4f}'.format( p0, 2*p0 - np.abs(params_devs.p0.mean()) ) )
+		print( 'pnu, fitted = {:.4f}, corrected = {:.4f}'.format( pnu, 2*pnu - params_devs.pnu.mean() ) )
+		print( 'ptau, fitted = {:.4f}, corrected = {:.4f}'.format( ptau, 2*ptau - params_devs.ptau.mean() ) )
+		print( 'p0, fitted = {:.4f}, corrected = {:.4f}\n'.format( p0, 2*p0 - params_devs.p0.mean() ) )
 
+
+		#plot plot!
+
+		#KDEs of bootstrapped model
+		sns.histplot( data=data, x='p0_frac', label='$p_{\mathrm{sim}} - p$', kde=True, ax=ax, element='step', color=colors[0], zorder=0 )
+		sns.histplot( data=data, x='ptau_frac', label=r'$\tau_{\mathrm{sim}} - \tau$', kde=True, ax=ax, element='step', color=colors[1], zorder=0 )
+		sns.histplot( data=data, x='pnu_frac', label=r'$\nu_{\mathrm{sim}} - \nu$', kde=True, ax=ax, element='step', color=colors[2], zorder=0 )
+
+		#fitted parameters for data
+		plt.axvline( x=0, ls='--', c='0.5', lw=plot_props['linewidth'], zorder=1 )
+
+		#texts
+		plt.text( 0.5, 1.2, datasets[ dataname ], va='center', ha='center', transform=ax.transAxes, fontsize=plot_props['ticklabel'] )
+
+		#legend
+		if grid_pos == 0:
+			leg = plt.legend( loc='lower left', bbox_to_anchor=(2.5, 1.43), prop=plot_props['legend_prop'], handlelength=1.7, numpoints=plot_props['legend_np'], columnspacing=plot_props['legend_colsp'], ncol=3 )
+
+		if grid_pos == 0:
+			plt.text( -0.59, 0.5, 'open', va='center', ha='center', transform=ax.transAxes, weight='bold', rotation='vertical', fontsize=plot_props['xylabel'] )
+			plt.annotate( text='', xy=( -0.59, -4.5 ), xytext=( -0.59, 0 ), arrowprops=dict(arrowstyle='<-', color='0.6'), xycoords=ax.transAxes, textcoords=ax.transAxes )
+
+		#finalise subplot
+		if grid_pos in [ 18, 19, 20, 21, 22, 23 ]:
+			plt.xlabel( r'$\bullet$', size=plot_props['xylabel'], labelpad=2 )
+		else:
+			plt.xlabel('')
+			plt.xticks([])
+		if grid_pos in [ 0, 6, 12, 18 ]:
+			plt.ylabel( r'count', size=plot_props['xylabel'], labelpad=2 )
+		else:
+			plt.ylabel('')
+		lim_val = 0.1
+		ax.set_xlim( -1.2*lim_val, 1.2*lim_val )
+		ax.locator_params( axis='both', nbins=3 )
+		ax.tick_params( axis='both', which='major', labelsize=plot_props['ticklabel'], pad=2 )
+
+	#finalise plot
+	if fig_props['savename'] != '':
+		plt.savefig( fig_props['savename']+'.pdf', format='pdf', dpi=fig_props['dpi'] )
+#		plt.savefig( fig_props['savename']+'.png', format='png', dpi=fig_props['dpi'] )
+
+
+#DEBUGGIN'
+
+		# open_deriv = params_model.loc['optimal', 'open_deriv']
 
 		# #get rescaled model parameters (in data)
 		# pnu_resc = ( pnu - p0 * open_deriv ) / open_deriv
@@ -159,43 +203,4 @@ if __name__ == "__main__":
 		# perror = 1 / ( 2 * np.sqrt( curve_devs.size ) )
 		# print('\tp-value: {:.2f} +- {:.2f}'.format(pvalue, perror))
 
-
-		#plot plot!
-
-		#fitted parameters for data
-		plt.axvline( x=0, ls='--', c='0.5', lw=plot_props['linewidth'], zorder=1 )
-
-		#KDEs of bootstrapped model
-		sns.kdeplot( data=data, x='p0_frac', label='$p$', ax=ax, fill=True, color=colors[1], zorder=0 )
-		sns.kdeplot( data=data, x='ptau_frac', label=r'$\tau$', ax=ax, fill=True, color=colors[0], zorder=0 )
-		sns.kdeplot( data=data, x='pnu_frac', label=r'$\nu$', ax=ax, fill=True, color=colors[2], zorder=0 )
-
-		#texts
-		plt.text( 0.5, 1, datasets[ dataname ], va='bottom', ha='center', transform=ax.transAxes, fontsize=plot_props['ticklabel'] )
-
-		#legend
-		if grid_pos == 0:
-			leg = plt.legend( loc='lower left', bbox_to_anchor=(3, 1.25), prop=plot_props['legend_prop'], handlelength=1.7, numpoints=plot_props['legend_np'], columnspacing=plot_props['legend_colsp'], ncol=3 )
-
-		if grid_pos == 0:
-			plt.text( -0.68, 0.5, 'open', va='center', ha='center', transform=ax.transAxes, weight='bold', rotation='vertical', fontsize=plot_props['xylabel'] )
-			plt.annotate( text='', xy=( -0.68, -4.5 ), xytext=( -0.68, 0 ), arrowprops=dict(arrowstyle='<-', color='0.6'), xycoords=ax.transAxes, textcoords=ax.transAxes )
-
-		#finalise subplot
-		# if grid_pos in [ 18, 19, 20, 21, 22, 23 ]:
-		if grid_pos in [ 12, 13, 14, 15, 16, 17 ]:
-			plt.xlabel( r'$\Delta \bullet$', size=plot_props['xylabel'], labelpad=2 )
-		else:
-			plt.xlabel('')
-		if grid_pos in [ 0, 6, 12, 18 ]:
-			plt.ylabel( r'$P(\Delta \bullet)$', size=plot_props['xylabel'], labelpad=2 )
-		else:
-			plt.ylabel('')
-		ax.set_xlim( -1.2*np.abs(data).max().max(), 1.2*np.abs(data).max().max() )
-		ax.locator_params( axis='both', nbins=3 )
-		ax.tick_params( axis='both', which='major', labelsize=plot_props['ticklabel'], pad=2 )
-
-	#finalise plot
-	if fig_props['savename'] != '':
-		plt.savefig( fig_props['savename']+'.pdf', format='pdf', dpi=fig_props['dpi'] )
-#		plt.savefig( fig_props['savename']+'.png', format='png', dpi=fig_props['dpi'] )
+		# lim_val = np.abs(data).max().max()

@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-### SCRIPT FOR PLOTTING SUPP FIGURE (DEVIATIONS) IN FARRANKS PROJECT ###
+### SCRIPT FOR PLOTTING SUPP FIGURE (DEVIATIONS IN MEASURES) IN FARRANKS PROJECT ###
 
 #import modules
 import os, sys
@@ -45,7 +45,7 @@ if __name__ == "__main__":
 	'ticklabel' : 13,
 	'text_size' : 10,
 	'marker_size' : 6,
-	'linewidth' : 1,
+	'linewidth' : 2,
 	'tickwidth' : 1,
 	'barwidth' : 0.8,
 	'legend_prop' : { 'size':10 },
@@ -59,9 +59,11 @@ if __name__ == "__main__":
 	fig_props = { 'fig_num' : 1,
 	'fig_size' : (10, 6),
 	'aspect_ratio' : (4, 6),
-	'grid_params' : dict( left=0.09, bottom=0.08, right=0.995, top=0.93, wspace=0.3, hspace=0.6 ),
+	'grid_params' : dict( left=0.08, bottom=0.08, right=0.995, top=0.88, wspace=0.3, hspace=0.6 ),
 	'dpi' : 300,
-	'savename' : 'figure_supp_deviations_old' }
+	'savename' : 'figure_supp_devs_measures' }
+
+	colors = sns.color_palette( 'Set2', n_colors=3 )
 
 
 	## DATA ##
@@ -98,10 +100,9 @@ if __name__ == "__main__":
 	grid.update( **fig_props['grid_params'] )
 
 
-# A: Fractional variations in fitted parameters of bootstrapped model
+# A: Deviations in flux/open/succ measures for bootstrapped model
 
-	# sel_datasets = [ dataname for dataname in fluxmean_data.index if datasets_openclosed[ dataname ] == 'open' ]
-	sel_datasets = [ 'AcademicRanking', 'AtlasComplex', 'Citations', 'Cities_RU', 'FIDEFemale', 'FIDEMale', 'Football_Scorers', 'Fortune', 'Golf_OWGR', 'Hienas', 'Nascar_BuschGrandNational', 'Nascar_WinstonCupGrandNational', 'Poker_GPI', 'Tennis_ATP', 'TheGuardian_numberComments', 'enron-sent-mails-weekly' ]
+	sel_datasets = [ dataname for dataname in fluxmean_data.index if datasets_openclosed[ dataname ] == 'open' ]
 
 	for grid_pos, dataname in enumerate( sel_datasets ): #loop through (open!) datasets (in order by decreasing mean flux)
 		print( 'flux = {:.2f}, dataset = {}'.format( fluxmean_data[ dataname ], dataname ) ) #to know where we stand
@@ -112,14 +113,13 @@ if __name__ == "__main__":
 
 		#prepare data
 
-		#load fitted model parameters
+		#load fitted model parameters and measures in data
 		params_model = pd.read_pickle( saveloc_data+'params_model_'+dataname+'.pkl' )
-		pnu = params_model.loc['optimal', 'pnu']
-		ptau = params_model.loc['optimal', 'ptau']
-		p0 = params_model.loc['optimal', 'p0']
+		flux = params_model.loc['optimal', 'flux']
 		open_deriv = params_model.loc['optimal', 'open_deriv']
+		success = params_model.loc['optimal', 'success']
 
-		#load parameters of bootstrapped samples of model
+		#load parameters/measures of bootstrapped samples of model
 		params_devs = pd.read_pickle( saveloc_data+'params_devs_'+dataname+'.pkl' )
 		#NOTE: for incomplete sampling, just keep finished realisations
 		params_devs = params_devs[ params_devs.p0 > 0 ]
@@ -127,65 +127,48 @@ if __name__ == "__main__":
 
 		#statistical significance of deviations
 
-		#get rescaled model parameters (in data)
-		pnu_resc = ( pnu - p0 * open_deriv ) / open_deriv
-		ptau_resc = ptau / ( p0 * (1 - p0) * open_deriv )
+		#rescale bootstrapped measures relative to original values
+		flux_frac = ( params_devs.flux - flux ).rename('flux_frac')
+		open_deriv_frac = ( params_devs.open_deriv - open_deriv ).rename('open_deriv_frac')
+		success_frac = ( params_devs.success - success ).rename('success_frac')
+		data = pd.concat( [ flux_frac, open_deriv_frac, success_frac ], axis=1 )
 
-		#get rescaled model parameters (in bootstrapped samples of model)
-		pnu_resc_devs = ( ( params_devs.pnu - params_devs.p0 * params_devs.open_deriv ) / params_devs.open_deriv ).rename('pnu_resc')
-		ptau_resc_devs = ( params_devs.ptau / ( params_devs.p0 * (1 - params_devs.p0) * params_devs.open_deriv ) ).rename('ptau_resc')
-
-		#get distance from universal curve (in data/samples)
-		curve = np.abs( np.log( ptau_resc * pnu_resc ) )
-		curve_devs = np.abs( np.log( ptau_resc_devs * pnu_resc_devs ) )
-
-		#p-value as fraction of bootstrapped samples with larger distance than data's
-		pvalue = curve_devs[ curve_devs > curve ].size / float( curve_devs.size )
-		perror = 1 / ( 2 * np.sqrt( curve_devs.size ) )
-		print('\tp-value: {:.2f} +- {:.2f}'.format(pvalue, perror))
 
 		#plot plot!
 
-		#fitted parameters for data
-		plt.axhline( ls='--', c='0.5', lw=plot_props['linewidth'], zorder=1 )
-		plt.axvline( ls='--', c='0.5', lw=plot_props['linewidth'], zorder=1 )
+		#KDEs of bootstrapped model
+		sns.histplot( data=data, x='flux_frac', label='$F_{\mathrm{sim}} - F$', kde=True, ax=ax, element='step', color=colors[0], zorder=0 )
+		sns.histplot( data=data, x='open_deriv_frac', label=r'$\dot{o}_{\mathrm{sim}} - \dot{o}$', kde=True, ax=ax, element='step', color=colors[1], zorder=0 )
+		sns.histplot( data=data, x='success_frac', label=r'$S^{++}_{\mathrm{sim}} - S^{++}$', kde=True, ax=ax, element='step', color=colors[2], zorder=0 )
 
-		#KDE/mean of bootstrapped model
-
-		xplot = ( ( params_devs['pnu'] - pnu ) / pnu ).rename('pnu_frac')
-		yplot = ( ( params_devs['ptau'] - ptau ) / ptau ).rename('ptau_frac')
-		xyplot = pd.concat( [ xplot, yplot ], axis=1 )
-
-		plt.plot( xplot.mean(), yplot.mean(), 'x', c='r', ms=plot_props['marker_size'], zorder=1 )
-		if dataname != 'spanish':
-			sns.kdeplot( data=xyplot, x='pnu_frac', y='ptau_frac', ax=ax, fill=True, palette='GnBu', levels=np.linspace(0.1, 1., 10), zorder=0 )
+		#reference value for data
+		plt.axvline( x=0, ls='--', c='0.5', lw=plot_props['linewidth'], zorder=1 )
 
 		#texts
-		plt.text( 0.5, 1.25, datasets[ dataname ], va='center', ha='center', transform=ax.transAxes, fontsize=plot_props['ticklabel'] )
+		plt.text( 0.5, 1.2, datasets[ dataname ], va='center', ha='center', transform=ax.transAxes, fontsize=plot_props['ticklabel'] )
 
-		pvalue_str = '$\Lambda =$ {:.2f} $\pm$ {:.2f}'.format( pvalue, perror )
-		plt.text( 0.02, 0.99, pvalue_str, va='top', ha='left', transform=ax.transAxes, fontsize=plot_props['text_size'])
+		#legend
+		if grid_pos == 0:
+			leg = plt.legend( loc='lower left', bbox_to_anchor=(2.5, 1.43), prop=plot_props['legend_prop'], handlelength=1.7, numpoints=plot_props['legend_np'], columnspacing=plot_props['legend_colsp'], ncol=3 )
 
 		if grid_pos == 0:
-			plt.text( -0.68, 0.5, 'open', va='center', ha='center', transform=ax.transAxes, weight='bold', rotation='vertical', fontsize=plot_props['xylabel'] )
-			plt.annotate( text='', xy=( -0.68, -4.5 ), xytext=( -0.68, 0 ), arrowprops=dict(arrowstyle='<-', color='0.6'), xycoords=ax.transAxes, textcoords=ax.transAxes )
+			plt.text( -0.59, 0.5, 'open', va='center', ha='center', transform=ax.transAxes, weight='bold', rotation='vertical', fontsize=plot_props['xylabel'] )
+			plt.annotate( text='', xy=( -0.59, -4.5 ), xytext=( -0.59, 0 ), arrowprops=dict(arrowstyle='<-', color='0.6'), xycoords=ax.transAxes, textcoords=ax.transAxes )
 
 		#finalise subplot
 		if grid_pos in [ 18, 19, 20, 21, 22, 23 ]:
-			plt.xlabel( r'$\Delta \nu$', size=plot_props['xylabel'], labelpad=2 )
+			plt.xlabel( r'$\bullet$', size=plot_props['xylabel'], labelpad=2 )
 		else:
 			plt.xlabel('')
+			plt.xticks([])
 		if grid_pos in [ 0, 6, 12, 18 ]:
-			plt.ylabel( r'$\Delta \tau$', size=plot_props['xylabel'], labelpad=2 )
+			plt.ylabel( r'count', size=plot_props['xylabel'], labelpad=2 )
 		else:
 			plt.ylabel('')
-		plt.axis([ -0.5, 0.6, -0.7, 0.5 ])
+		lim_val = 0.1
+		ax.set_xlim( -1.2*lim_val, 1.2*lim_val )
 		ax.locator_params( axis='both', nbins=3 )
 		ax.tick_params( axis='both', which='major', labelsize=plot_props['ticklabel'], pad=2 )
-		if grid_pos not in [ 18, 19, 20, 21, 22, 23 ]:
-			plt.xticks([])
-		if grid_pos not in [ 0, 6, 12, 18 ]:
-			plt.yticks([])
 
 	#finalise plot
 	if fig_props['savename'] != '':
@@ -195,26 +178,58 @@ if __name__ == "__main__":
 
 #DEBUGGIN'
 
-	#universal curve in model
+	#rank measure parameters
+	# thres = 0.5 #threshold to calculate success/surprise measure
 
-	# pnu_resc_vals = np.logspace( -3, np.log10( 4e-1 ), 50 ) #pick rescaled pnu as variable
-	# ptau_resc_vals = 1 / pnu_resc_vals #and slide over universal curve
+		# params = params_data.loc[ dataname ]
+		# params[ 'pnu' ], params[ 'ptau' ] = params_model.loc[ 'optimal', [ 'pnu', 'ptau' ] ] #set parameters
 
-		# params_resc_devs = pd.concat( [ pnu_resc_devs, ptau_resc_devs ], axis=1 ) #and join
+		# #get target measures (according to MF theory for data parameters)
+		# flux = model_misc.flux_theo( params )
+		# # open_deriv = model_misc.open_deriv_theo( params ) #without T>>0 approx
+		# open_deriv = params['pnu']*( params['pnu'] + params['ptau'] ) / ( params['pnu'] + params['ptau']*params['N0']/params['N'] )
+		# success = model_misc.success_time_theo( thres, 1, params ) #success for t=1
 
-		#rescaled fitted parameters for data
-		# plt.loglog( pnu_resc, ptau_resc, 'o', label='data', c=datacols[datatypes[dataname]], ms=plot_props['marker_size'], zorder=2 )
+		# #add data parameters to deviations dataframe
+		# params_devs['N0'] = params['N0']
+		# params_devs['T'] = params['T']
+		# params_devs['N'] = np.round( params_devs.N0 / params_devs.p0 ).astype(int)
 
-		# sns.kdeplot( data=params_resc_devs, x='pnu_resc', y='ptau_resc', ax=ax, log_scale=True, fill=True, palette='GnBu', zorder=1 )
+		# #get theo extimates for measures
+		# params_devs['flux_theo'] = 1 - np.exp( -params_devs.pnu ) * ( params_devs.p0 + (1 - params_devs.p0) * np.exp( -params_devs.ptau ) )
+		# params_devs['open_deriv_theo'] = params_devs.pnu * ( params_devs.pnu + params_devs.ptau ) / ( params_devs.pnu + params_devs.p0 * params_devs.ptau )
+		# params_devs['success_theo'] = np.exp( -params_devs.pnu ) * ( thres * params_devs.p0 + (1 - thres * params_devs.p0) * np.exp( -params_devs.ptau ) )
 
-		#universal curve in model
-		# plt.loglog( pnu_resc_vals, ptau_resc_vals, '--', c='0.5', lw=plot_props['linewidth'], label=r'$\tau_r \nu_r = 1$', zorder=0 )
+		# #rescale bootstrapped measures relative to original values
+		# flux_frac = ( ( params_devs.flux - flux ) / flux ).rename('flux_frac')
+		# open_deriv_frac = ( ( params_devs.open_deriv - open_deriv ) / open_deriv ).rename('open_deriv_frac')
+		# success_frac = ( ( params_devs.success - success ) / success ).rename('success_frac')
+		# data = pd.concat( [ flux_frac, open_deriv_frac, success_frac ], axis=1 )
 
-			# plt.xlabel( r'$\nu_r$', size=plot_props['xylabel'], labelpad=2 )
-			# plt.ylabel( r'$\tau_r$', size=plot_props['xylabel'], labelpad=2 )
-		# curve = np.abs( ptau_resc - 1/pnu_resc )
-		# curve_devs = np.abs( ptau_resc_devs - 1/pnu_resc_devs )
-		# curve = np.abs( pnu_resc - 1/ptau_resc )
-		# curve_devs = np.abs( pnu_resc_devs - 1/ptau_resc_devs )
-		# curve = ( ptau_resc - 1/pnu_resc )**2 + ( pnu_resc - 1/ptau_resc )**2
-		# curve_devs = ( ptau_resc_devs - 1/pnu_resc_devs )**2 + ( pnu_resc_devs - 1/ptau_resc_devs )**2
+		# #bias-corrected parameters in bootstrap
+		# params_devs['pnu_corr'] = 2*params_devs.pnu - params_devs.pnu.mean()
+		# params_devs['ptau_corr'] = 2*params_devs.ptau - params_devs.ptau.mean()
+		#
+		# #get theo estimates for measures
+		# thres=0.5
+		# params_devs['flux_theo'] = 1 - np.exp( -params_devs.pnu_corr ) * ( params_devs.p0 + (1 - params_devs.p0) * np.exp( -params_devs.ptau_corr ) )
+		# params_devs['open_deriv_theo'] = params_devs.pnu_corr * ( params_devs.pnu_corr + params_devs.ptau_corr ) / ( params_devs.pnu_corr + params_devs.p0 * params_devs.ptau_corr )
+		# params_devs['success_theo'] = np.exp( -params_devs.pnu_corr ) * ( thres * params_devs.p0 + (1 - thres * params_devs.p0) * np.exp( -params_devs.ptau_corr ) )
+
+		# #rescale bootstrapped measures relative to original values
+		# flux_frac = ( params_devs.flux_theo - flux ).rename('flux_frac')
+		# open_deriv_frac = ( params_devs.open_deriv_theo - open_deriv ).rename('open_deriv_frac')
+		# success_frac = ( params_devs.success_theo - success ).rename('success_frac')
+		# data = pd.concat( [ flux_frac, open_deriv_frac, success_frac ], axis=1 )
+
+		# plt.axvline( x=0, ls='--', c='0.5', lw=plot_props['linewidth'], zorder=0 )
+		# plt.axvline( x=flux, ls='--', c=colors[1], lw=plot_props['linewidth'], zorder=0 )
+		# plt.axvline( x=open_deriv, ls='--', c=colors[0], lw=plot_props['linewidth'], zorder=0 )
+		# plt.axvline( x=success, ls='--', c=colors[2], lw=plot_props['linewidth'], zorder=0 )
+
+		# #KDEs of bootstrapped model
+		# sns.kdeplot( data=data, x='flux_frac', label='$F$', ax=ax, fill=True, color=colors[1], zorder=0 )
+		# sns.kdeplot( data=data, x='open_deriv_frac', label=r'$\dot{o}$', ax=ax, fill=True, color=colors[0], zorder=0 )
+		# sns.kdeplot( data=data, x='success_frac', label=r'$S^{++}$', ax=ax, fill=True, color=colors[2], zorder=0 )
+
+		# lim_val = np.abs(data).max().max()
