@@ -28,3 +28,7 @@ Secondary scripts:
 - **script_fitData.sh** (script to run code in cluster)
 - **script_fitData.slurm** (script to run code in cluster)
 - **script_moveFiles.py** (script to move files in bulk)
+
+#### Figures folder
+
+Each script corresponds to a figure in the main text and supplementary information.
