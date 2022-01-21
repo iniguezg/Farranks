@@ -1,5 +1,8 @@
 #! /usr/bin/env python
 
+#Farranks - Exploring rank dynamics in complex systems
+#Copyright (C) 2022 Gerardo Iñiguez
+
 ### SCRIPT FOR SOLVING FIT EQUATIONS IN FARRANKS PROJECT ###
 
 #import modules
@@ -196,10 +199,3 @@ if __name__ == "__main__":
 		#finalise plot
 		if fig_props['savename'] != '':
 			plt.savefig( fig_props['savename']+'.pdf', format='pdf', dpi=fig_props['dpi'] )
-
-#DEBUGGIN'
-
-#		xplot = pnu_vals_bound
-#		plt.axvspan( p0*open_deriv_data, open_deriv_data, facecolor='0.9', lw=plot_props['linewidth']-1, label=r'$p \langle \dot{o} \rangle < \nu < \langle \dot{o} \rangle$', zorder=0 )
-#		plt.axis([ float(0.9 * p0 * open_deriv_data), float(1.1 * open_deriv_data), float(min(pnu_vals)), float(max(pnu_vals)) ])
-#		plt.axis([ 1e-3, float( 1 - p0 ), 1e-3, float( 1 / ( p0 * (1 - p0) * open_deriv_data ) ) ])

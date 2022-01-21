@@ -1,5 +1,8 @@
 #! /usr/bin/env python
 
+#Farranks - Exploring rank dynamics in complex systems
+#Copyright (C) 2022 Gerardo Iñiguez
+
 ### MODULE FOR MISCELLANEOUS FUNCTIONS FOR DATA/MODEL PROPERTIES IN FARRANKS PROJECT ###
 
 #import modules

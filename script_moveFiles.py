@@ -1,5 +1,8 @@
 #! /usr/bin/env python
 
+#Farranks - Exploring rank dynamics in complex systems
+#Copyright (C) 2022 Gerardo Iñiguez
+
 ### SCRIPT FOR MOVING MISC FILES IN FARRANKS PROJECT ###
 
 #import modules
