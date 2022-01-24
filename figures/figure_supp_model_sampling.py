@@ -1,5 +1,8 @@
 #! /usr/bin/env python
 
+#Farranks - Exploring rank dynamics in complex systems
+#Copyright (C) 2022 Gerardo Iñiguez
+
 ### SCRIPT FOR PLOTTING SUPP FIGURE (MODEL SAMPLING) IN FARRANKS PROJECT ###
 
 #import modules
@@ -241,20 +244,3 @@ if __name__ == "__main__":
 	if fig_props['savename'] != '':
 		plt.savefig( fig_props['savename']+'.pdf', format='pdf', dpi=fig_props['dpi'] )
 #		plt.savefig( fig_props['savename']+'.png', format='png', dpi=fig_props['dpi'] )
-
-
-#DEBUGGIN'
-
-	# params = { 'ptau' : 0.0068, 'pnu' : 0.0012, 'N' : 2619, 'N0' : 1150, 'T' : 768, 'ntimes' : 10 }
-	# params = { 'ptau' : 0.0137, 'pnu' : 0.0021, 'N' : 3438, 'N0' : 1600, 'T' : 400, 'ntimes' : 10 }
-	# params = { 'ptau' : 0.05, 'pnu' : 0.05, 'N' : 100, 'N0' : 10, 'T' : 1000, 'ntimes' : 10 }
-
-	# ptau_eff_vals = params['ptau'] * k_vals
-	# pnu_eff_vals = params['pnu'] * k_vals
-	# ptau_eff_vals = params['N']*( 1 - ( 1 - params['ptau']/params['N'] )**k_vals )
-	# pnu_eff_vals = params['N']*( 1 - ( 1 - params['pnu']/params['N'] )**k_vals )
-	# ptau_eff_vals[ ptau_eff_vals > 1 ] = 1
-	# pnu_eff_vals[ pnu_eff_vals > 1 ] = 1
-
-#	yplot_theo = mm.flux_time_theo( xplot, params ) #mean flux
-	# yplot_theo = params_eff['pnu'] * ( params_eff['pnu'] + params_eff['ptau'] ) / ( params_eff['pnu'] + params_eff['p0'] * params_eff['ptau'] )

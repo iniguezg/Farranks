@@ -1,5 +1,8 @@
 #! /usr/bin/env python
 
+#Farranks - Exploring rank dynamics in complex systems
+#Copyright (C) 2022 Gerardo Iñiguez
+
 ### SCRIPT FOR PLOTTING SUPP FIGURE (SAMPLING) IN FARRANKS PROJECT ###
 
 #import modules
@@ -31,13 +34,10 @@ if __name__ == "__main__":
 	#dataset short names, types, and colors
 
 	datasets = { 'AcademicRanking' : 'universities', 'AtlasComplex' : 'countries', 'Citations' : 'scientists', 'Cities_RU' : 'cities (RU)', 'Cities_UK' : 'cities (GB)', 'Earthquakes_avgMagnitude' : 'regions JP\n(quake mag)', 'Earthquakes_numberQuakes' : 'regions JP\n(quakes)', 'english' : 'English', 'enron-sent-mails-weekly' : 'Enron emails', 'FIDEFemale' : 'chess players\n(female)', 'FIDEMale' : 'chess players\n(male)', 'Football_FIFA' : 'national football\nteams', 'Football_Scorers' : 'Football scorers', 'Fortune' : 'companies', 'french' : 'French', 'german' : 'German', 'github-watch-weekly' : 'GitHub\nrepositories', 'Golf_OWGR' : 'golf players', 'Hienas' : 'hyenas', 'italian' : 'Italian', 'metroMex' : 'metro stations\n(Mexico)', 'Nascar_BuschGrandNational' : 'Nascar drivers\n(Busch)', 'Nascar_WinstonCupGrandNational' : 'Nascar drivers\n(Winston Cup)', 'Poker_GPI' : 'poker players', 'russian' : 'Russian', 'spanish' : 'Spanish', 'Tennis_ATP' : 'tennis players', 'TheGuardian_avgRecommends' : 'The Guardian\nreaders (recc)', 'TheGuardian_numberComments' : 'The Guardian\nreaders (comm)', 'UndergroundByWeek' : 'metro stations\n(London)' } #name dict
-#	datasets = { 'VideogameEarnings' : 'videogame\nplayers', 'Virus' : 'viruses' } #shady data
 
 	datasets_openclosed = { 'AcademicRanking' : 'open', 'AtlasComplex' : 'open', 'Citations' : 'open', 'Cities_RU' : 'open', 'Cities_UK' : 'closed', 'Earthquakes_avgMagnitude' : 'closed', 'Earthquakes_numberQuakes' : 'closed', 'english' : 'open', 'enron-sent-mails-weekly' : 'open', 'FIDEFemale' : 'open', 'FIDEMale' : 'open', 'Football_FIFA' : 'closed', 'Football_Scorers' : 'open', 'Fortune' : 'open', 'french' : 'open', 'german' : 'open', 'github-watch-weekly' : 'open', 'Golf_OWGR' : 'open', 'Hienas' : 'open', 'italian' : 'open', 'metroMex' : 'closed', 'Nascar_BuschGrandNational' : 'open', 'Nascar_WinstonCupGrandNational' : 'open', 'Poker_GPI' : 'open', 'russian' : 'open', 'spanish' : 'open','Tennis_ATP' : 'open', 'TheGuardian_avgRecommends' : 'open', 'TheGuardian_numberComments' : 'open', 'UndergroundByWeek' : 'closed' } #type dict
-#	datasets = { 'VideogameEarnings' : 'open', 'Virus' : 'open' } #shady data
 
 	datatypes = { 'AcademicRanking' : 'society', 'AtlasComplex' : 'economics', 'Citations' : 'society', 'Cities_RU' : 'infrastructure', 'Cities_UK' : 'infrastructure', 'Earthquakes_avgMagnitude' : 'nature', 'Earthquakes_numberQuakes' : 'nature', 'english' : 'languages', 'enron-sent-mails-weekly' : 'society', 'FIDEFemale' : 'sports', 'FIDEMale' : 'sports', 'Football_FIFA' : 'sports', 'Football_Scorers' : 'sports', 'Fortune' : 'economics', 'french' : 'languages', 'german' : 'languages', 'github-watch-weekly' : 'society', 'Golf_OWGR' : 'sports', 'Hienas' : 'nature', 'italian' : 'languages', 'metroMex' : 'infrastructure', 'Nascar_BuschGrandNational' : 'sports', 'Nascar_WinstonCupGrandNational' : 'sports', 'Poker_GPI' : 'sports', 'russian' : 'languages', 'spanish' : 'languages','Tennis_ATP' : 'sports', 'TheGuardian_avgRecommends' : 'society', 'TheGuardian_numberComments' : 'society', 'UndergroundByWeek' : 'infrastructure' } #type dict
-#	datasets = { 'VideogameEarnings' : 'economics', 'Virus' : 'nature' } #shady data
 
 	palette = sns.color_palette( 'Set2', n_colors=7 ) #selected colormap for types
 	datacols = { 'society' : palette[0], 'languages' : palette[1], 'economics' : palette[2], 'infrastructure' : palette[3], 'nature' : palette[4], 'sports' : palette[6] } #set color for dataset type
@@ -177,35 +177,3 @@ if __name__ == "__main__":
 	if fig_props['savename'] != '':
 		plt.savefig( fig_props['savename']+'.pdf', format='pdf', dpi=fig_props['dpi'] )
 #		plt.savefig( fig_props['savename']+'.png', format='png', dpi=fig_props['dpi'] )
-
-
-#DEBUGGIN'
-	# plt.figure(2)
-	# plt.clf()
-	# for dataname in sel_datasets:
-	# 	params = params_data.loc[ dataname ] #original parameters
-	# 	params_sample = pd.read_pickle( saveloc_samp+'params_sample_'+dataname+'.pkl' )
-	# 	params_model = pd.read_pickle( saveloc_samp+'params_model_'+dataname+'.pkl' )
-	# 	params_all = pd.concat( [ params_sample, params_model ], axis=1 ) #join all
-	#
-	# 	#get rescaled model parameters (as a function of sampling jump)
-	# 	pnu_resc = ( ( params_all['pnu'] - params_all['p0'] * params_all['open_deriv'] ) / params_all['open_deriv'] ).rename('pnu_resc')
-	# 	ptau_resc = ( params_all['ptau'] / ( params_all['p0'] * (1 - params_all['p0']) * params_all['open_deriv'] ) ).rename('ptau_resc')
-	# 	#fraction of observations (out of T) left by (sub)sampling
-	# 	samp_frac = ( params_all['T'] / float( params['T'] ) ).rename('samp_frac')
-	#
-	# 	params_all = pd.concat( [ params_all, ptau_resc, pnu_resc, samp_frac ], axis=1 ) #join all
-	#
-	# 	#filter data (with sampling fraction larger than threshold!)
-	# 	params_plot = params_all[ params_all['samp_frac'] > samp_thres ]
-	#
-	# 	# plt.loglog( params_all.index, params_all.pnu / params_model.loc[1, 'pnu'], label=dataname, zorder=1 )
-	# 	# plt.loglog( np.linspace(1, 1000, 10), np.linspace(1, 1000, 10), '--', c='0.2', zorder=1 )
-	# 	# plt.loglog( params_all.index, (1 - (1 - params_model.loc[1, 'pnu'])**params_all.index) / params_model.loc[1, 'pnu'], '--', c='0.8', zorder=1 )
-	#
-	# 	plt.loglog( params_all.index, params_all.ptau / params_model.loc[1, 'ptau'], label=dataname, zorder=1 )
-	# 	plt.loglog( np.linspace(1, 1000, 10), np.linspace(1, 1000, 10), '--', c='0.2', zorder=1 )
-	# 	plt.loglog( params_all.index, (1 - (1 - params_model.loc[1, 'ptau'])**params_all.index) / params_model.loc[1, 'ptau'], '--', c='0.8', zorder=1 )
-	#
-	# plt.legend()
-	# plt.show()

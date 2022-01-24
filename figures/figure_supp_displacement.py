@@ -1,5 +1,8 @@
 #! /usr/bin/env python
 
+#Farranks - Exploring rank dynamics in complex systems
+#Copyright (C) 2022 Gerardo Iñiguez
+
 ### SCRIPT FOR PLOTTING SUPP FIGURE (DISPLACEMENT) IN FARRANKS PROJECT ###
 
 #import modules
@@ -34,10 +37,8 @@ if __name__ == "__main__":
 	#dataset short names, types, and colors
 
 	datasets = { 'AcademicRanking' : 'universities', 'AtlasComplex' : 'countries', 'Citations' : 'scientists', 'Cities_RU' : 'cities (RU)', 'Cities_UK' : 'cities (GB)', 'Earthquakes_avgMagnitude' : 'regions JP\n(quake mag)', 'Earthquakes_numberQuakes' : 'regions JP\n(quakes)', 'english' : 'English', 'enron-sent-mails-weekly' : 'Enron emails', 'FIDEFemale' : 'chess players\n(female)', 'FIDEMale' : 'chess players\n(male)', 'Football_FIFA' : 'national football\nteams', 'Football_Scorers' : 'Football scorers', 'Fortune' : 'companies', 'french' : 'French', 'german' : 'German', 'github-watch-weekly' : 'GitHub\nrepositories', 'Golf_OWGR' : 'golf players', 'Hienas' : 'hyenas', 'italian' : 'Italian', 'metroMex' : 'metro stations\n(Mexico)', 'Nascar_BuschGrandNational' : 'Nascar drivers\n(Busch)', 'Nascar_WinstonCupGrandNational' : 'Nascar drivers\n(Winston Cup)', 'Poker_GPI' : 'poker players', 'russian' : 'Russian', 'spanish' : 'Spanish', 'Tennis_ATP' : 'tennis players', 'TheGuardian_avgRecommends' : 'The Guardian\nreaders (recc)', 'TheGuardian_numberComments' : 'The Guardian\nreaders (comm)', 'UndergroundByWeek' : 'metro stations\n(London)' } #name dict
-#	datasets = { 'VideogameEarnings' : 'videogame\nplayers', 'Virus' : 'viruses' } #shady data
 
 	datatypes = { 'AcademicRanking' : 'open', 'AtlasComplex' : 'open', 'Citations' : 'open', 'Cities_RU' : 'open', 'Cities_UK' : 'closed', 'Earthquakes_avgMagnitude' : 'closed', 'Earthquakes_numberQuakes' : 'closed', 'english' : 'open', 'enron-sent-mails-weekly' : 'open', 'FIDEFemale' : 'open', 'FIDEMale' : 'open', 'Football_FIFA' : 'closed', 'Football_Scorers' : 'open', 'Fortune' : 'open', 'french' : 'open', 'german' : 'open', 'github-watch-weekly' : 'open', 'Golf_OWGR' : 'open', 'Hienas' : 'open', 'italian' : 'open', 'metroMex' : 'closed', 'Nascar_BuschGrandNational' : 'open', 'Nascar_WinstonCupGrandNational' : 'open', 'Poker_GPI' : 'open', 'russian' : 'open', 'spanish' : 'open','Tennis_ATP' : 'open', 'TheGuardian_avgRecommends' : 'open', 'TheGuardian_numberComments' : 'open', 'UndergroundByWeek' : 'closed' } #type dict
-#	datasets = { 'VideogameEarnings' : 'open', 'Virus' : 'open' } #shady data
 
 	filter_factor = { 'AcademicRanking' : 15., 'AtlasComplex' : 10., 'Citations' : 10., 'Cities_RU' : 20., 'Cities_UK' : 30., 'Earthquakes_avgMagnitude' : 10., 'Earthquakes_numberQuakes' : 10., 'english' : 10., 'enron-sent-mails-weekly' : 20., 'FIDEFemale' : 200., 'FIDEMale' : 200., 'Football_FIFA' : 20., 'Football_Scorers' : 20., 'Fortune' : 40., 'french' : 10., 'german' : 10., 'github-watch-weekly' : 10., 'Golf_OWGR' : 200., 'Hienas' : 10., 'italian' : 10., 'metroMex' : 20., 'Nascar_BuschGrandNational' : 10., 'Nascar_WinstonCupGrandNational' : 20., 'Poker_GPI' : 40., 'russian' : 10., 'spanish' : 10., 'Tennis_ATP' : 200., 'TheGuardian_avgRecommends' : 10., 'TheGuardian_numberComments' : 10., 'UndergroundByWeek' : 40. } #factor for plotting filter
 
@@ -192,7 +193,3 @@ if __name__ == "__main__":
 	if fig_props['savename'] != '':
 		plt.savefig( fig_props['savename']+'.pdf', format='pdf', dpi=fig_props['dpi'] )
 #		plt.savefig( fig_props['savename']+'.png', format='png', dpi=fig_props['dpi'] )
-
-#DEBUGGIN'
-
-#	figuloc = root_loc+'nullModel/v4/figures/' #location of figure files

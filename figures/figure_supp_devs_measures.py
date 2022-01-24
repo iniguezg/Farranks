@@ -1,5 +1,8 @@
 #! /usr/bin/env python
 
+#Farranks - Exploring rank dynamics in complex systems
+#Copyright (C) 2022 Gerardo Iñiguez
+
 ### SCRIPT FOR PLOTTING SUPP FIGURE (DEVIATIONS IN MEASURES) IN FARRANKS PROJECT ###
 
 #import modules
@@ -28,13 +31,10 @@ if __name__ == "__main__":
 	#dataset short names, types, and colors
 
 	datasets = { 'AcademicRanking' : 'universities', 'AtlasComplex' : 'countries', 'Citations' : 'scientists', 'Cities_RU' : 'cities (RU)', 'Cities_UK' : 'cities (GB)', 'Earthquakes_avgMagnitude' : 'regions JP\n(quake mag)', 'Earthquakes_numberQuakes' : 'regions JP\n(quakes)', 'english' : 'English', 'enron-sent-mails-weekly' : 'Enron emails', 'FIDEFemale' : 'chess players\n(female)', 'FIDEMale' : 'chess players\n(male)', 'Football_FIFA' : 'national football\nteams', 'Football_Scorers' : 'Football scorers', 'Fortune' : 'companies', 'french' : 'French', 'german' : 'German', 'github-watch-weekly' : 'GitHub\nrepositories', 'Golf_OWGR' : 'golf players', 'Hienas' : 'hyenas', 'italian' : 'Italian', 'metroMex' : 'metro stations\n(Mexico)', 'Nascar_BuschGrandNational' : 'Nascar drivers\n(Busch)', 'Nascar_WinstonCupGrandNational' : 'Nascar drivers\n(Winston Cup)', 'Poker_GPI' : 'poker players', 'russian' : 'Russian', 'spanish' : 'Spanish', 'Tennis_ATP' : 'tennis players', 'TheGuardian_avgRecommends' : 'The Guardian\nreaders (recc)', 'TheGuardian_numberComments' : 'The Guardian\nreaders (comm)', 'UndergroundByWeek' : 'metro stations\n(London)' } #name dict
-#	datasets = { 'VideogameEarnings' : 'videogame\nplayers', 'Virus' : 'viruses' } #shady data
 
 	datasets_openclosed = { 'AcademicRanking' : 'open', 'AtlasComplex' : 'open', 'Citations' : 'open', 'Cities_RU' : 'open', 'Cities_UK' : 'closed', 'Earthquakes_avgMagnitude' : 'closed', 'Earthquakes_numberQuakes' : 'closed', 'english' : 'open', 'enron-sent-mails-weekly' : 'open', 'FIDEFemale' : 'open', 'FIDEMale' : 'open', 'Football_FIFA' : 'closed', 'Football_Scorers' : 'open', 'Fortune' : 'open', 'french' : 'open', 'german' : 'open', 'github-watch-weekly' : 'open', 'Golf_OWGR' : 'open', 'Hienas' : 'open', 'italian' : 'open', 'metroMex' : 'closed', 'Nascar_BuschGrandNational' : 'open', 'Nascar_WinstonCupGrandNational' : 'open', 'Poker_GPI' : 'open', 'russian' : 'open', 'spanish' : 'open','Tennis_ATP' : 'open', 'TheGuardian_avgRecommends' : 'open', 'TheGuardian_numberComments' : 'open', 'UndergroundByWeek' : 'closed' } #type dict
-#	datasets = { 'VideogameEarnings' : 'open', 'Virus' : 'open' } #shady data
 
 	datatypes = { 'AcademicRanking' : 'society', 'AtlasComplex' : 'economics', 'Citations' : 'society', 'Cities_RU' : 'infrastructure', 'Cities_UK' : 'infrastructure', 'Earthquakes_avgMagnitude' : 'nature', 'Earthquakes_numberQuakes' : 'nature', 'english' : 'languages', 'enron-sent-mails-weekly' : 'society', 'FIDEFemale' : 'sports', 'FIDEMale' : 'sports', 'Football_FIFA' : 'sports', 'Football_Scorers' : 'sports', 'Fortune' : 'economics', 'french' : 'languages', 'german' : 'languages', 'github-watch-weekly' : 'society', 'Golf_OWGR' : 'sports', 'Hienas' : 'nature', 'italian' : 'languages', 'metroMex' : 'infrastructure', 'Nascar_BuschGrandNational' : 'sports', 'Nascar_WinstonCupGrandNational' : 'sports', 'Poker_GPI' : 'sports', 'russian' : 'languages', 'spanish' : 'languages','Tennis_ATP' : 'sports', 'TheGuardian_avgRecommends' : 'society', 'TheGuardian_numberComments' : 'society', 'UndergroundByWeek' : 'infrastructure' } #type dict
-#	datasets = { 'VideogameEarnings' : 'economics', 'Virus' : 'nature' } #shady data
 
 	palette = sns.color_palette( 'Set2', n_colors=7 ) #selected colormap for types
 	datacols = { 'society' : palette[0], 'languages' : palette[1], 'economics' : palette[2], 'infrastructure' : palette[3], 'nature' : palette[4], 'sports' : palette[6] } #set color for dataset type
@@ -174,62 +174,3 @@ if __name__ == "__main__":
 	if fig_props['savename'] != '':
 		plt.savefig( fig_props['savename']+'.pdf', format='pdf', dpi=fig_props['dpi'] )
 #		plt.savefig( fig_props['savename']+'.png', format='png', dpi=fig_props['dpi'] )
-
-
-#DEBUGGIN'
-
-	#rank measure parameters
-	# thres = 0.5 #threshold to calculate success/surprise measure
-
-		# params = params_data.loc[ dataname ]
-		# params[ 'pnu' ], params[ 'ptau' ] = params_model.loc[ 'optimal', [ 'pnu', 'ptau' ] ] #set parameters
-
-		# #get target measures (according to MF theory for data parameters)
-		# flux = model_misc.flux_theo( params )
-		# # open_deriv = model_misc.open_deriv_theo( params ) #without T>>0 approx
-		# open_deriv = params['pnu']*( params['pnu'] + params['ptau'] ) / ( params['pnu'] + params['ptau']*params['N0']/params['N'] )
-		# success = model_misc.success_time_theo( thres, 1, params ) #success for t=1
-
-		# #add data parameters to deviations dataframe
-		# params_devs['N0'] = params['N0']
-		# params_devs['T'] = params['T']
-		# params_devs['N'] = np.round( params_devs.N0 / params_devs.p0 ).astype(int)
-
-		# #get theo extimates for measures
-		# params_devs['flux_theo'] = 1 - np.exp( -params_devs.pnu ) * ( params_devs.p0 + (1 - params_devs.p0) * np.exp( -params_devs.ptau ) )
-		# params_devs['open_deriv_theo'] = params_devs.pnu * ( params_devs.pnu + params_devs.ptau ) / ( params_devs.pnu + params_devs.p0 * params_devs.ptau )
-		# params_devs['success_theo'] = np.exp( -params_devs.pnu ) * ( thres * params_devs.p0 + (1 - thres * params_devs.p0) * np.exp( -params_devs.ptau ) )
-
-		# #rescale bootstrapped measures relative to original values
-		# flux_frac = ( ( params_devs.flux - flux ) / flux ).rename('flux_frac')
-		# open_deriv_frac = ( ( params_devs.open_deriv - open_deriv ) / open_deriv ).rename('open_deriv_frac')
-		# success_frac = ( ( params_devs.success - success ) / success ).rename('success_frac')
-		# data = pd.concat( [ flux_frac, open_deriv_frac, success_frac ], axis=1 )
-
-		# #bias-corrected parameters in bootstrap
-		# params_devs['pnu_corr'] = 2*params_devs.pnu - params_devs.pnu.mean()
-		# params_devs['ptau_corr'] = 2*params_devs.ptau - params_devs.ptau.mean()
-		#
-		# #get theo estimates for measures
-		# thres=0.5
-		# params_devs['flux_theo'] = 1 - np.exp( -params_devs.pnu_corr ) * ( params_devs.p0 + (1 - params_devs.p0) * np.exp( -params_devs.ptau_corr ) )
-		# params_devs['open_deriv_theo'] = params_devs.pnu_corr * ( params_devs.pnu_corr + params_devs.ptau_corr ) / ( params_devs.pnu_corr + params_devs.p0 * params_devs.ptau_corr )
-		# params_devs['success_theo'] = np.exp( -params_devs.pnu_corr ) * ( thres * params_devs.p0 + (1 - thres * params_devs.p0) * np.exp( -params_devs.ptau_corr ) )
-
-		# #rescale bootstrapped measures relative to original values
-		# flux_frac = ( params_devs.flux_theo - flux ).rename('flux_frac')
-		# open_deriv_frac = ( params_devs.open_deriv_theo - open_deriv ).rename('open_deriv_frac')
-		# success_frac = ( params_devs.success_theo - success ).rename('success_frac')
-		# data = pd.concat( [ flux_frac, open_deriv_frac, success_frac ], axis=1 )
-
-		# plt.axvline( x=0, ls='--', c='0.5', lw=plot_props['linewidth'], zorder=0 )
-		# plt.axvline( x=flux, ls='--', c=colors[1], lw=plot_props['linewidth'], zorder=0 )
-		# plt.axvline( x=open_deriv, ls='--', c=colors[0], lw=plot_props['linewidth'], zorder=0 )
-		# plt.axvline( x=success, ls='--', c=colors[2], lw=plot_props['linewidth'], zorder=0 )
-
-		# #KDEs of bootstrapped model
-		# sns.kdeplot( data=data, x='flux_frac', label='$F$', ax=ax, fill=True, color=colors[1], zorder=0 )
-		# sns.kdeplot( data=data, x='open_deriv_frac', label=r'$\dot{o}$', ax=ax, fill=True, color=colors[0], zorder=0 )
-		# sns.kdeplot( data=data, x='success_frac', label=r'$S^{++}$', ax=ax, fill=True, color=colors[2], zorder=0 )
-
-		# lim_val = np.abs(data).max().max()

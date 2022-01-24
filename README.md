@@ -32,3 +32,17 @@ Secondary scripts:
 #### Figures folder
 
 Each script corresponds to a figure in the main text and supplementary information.
+
+#### Files folder
+
+- **params_data.pkl** (basic statistics per dataset: number of elements, ranking list size, number of observations)
+- **params_model*.pkl** (average rank properties and fitted model parameters per dataset)
+
+#### Fitting folder
+
+- **script_fitData.py** (script for fitting data with model)
+- **run_fitData*.sh** (script to run code in cluster)
+
+#### Tables folder
+
+Each script corresponds to a table in the supplementary information.
