@@ -1,4 +1,5 @@
 # Farranks
+[![DOI](https://zenodo.org/badge/377772153.svg)](https://zenodo.org/badge/latestdoi/377772153)
 
 ## Farranks - Exploring rank dynamics in complex systems
 
